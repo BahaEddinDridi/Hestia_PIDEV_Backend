@@ -11,7 +11,7 @@ router.post('/login',loginLimiter , authController.loginUser);
 router.get('/refresh', authController.refresh);
 router.post('/logout',authController.logout);
 router.get('/protected-route' ,authController.protectedRoute);
-
+router.get('/github/callback', authController.loginUserWithGitHub);
 router.post('/linkedin/callback', (req, res) => {
     res.json({ accessToken: 'your_access_token' });
 });

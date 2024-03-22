@@ -54,6 +54,32 @@ const loginUser = async (req, res, next) => {
         }
     })(req, res, next);
 };
+const loginUserWithGitHub = async (req, res, next) => {
+    passport.authenticate('github', { session: false }, async (err, user, info) => {
+        try {
+            if (err || !user) {
+                return res.status(401).json({ error: info ? info.message : 'GitHub login failed' });
+            }
+            const accessToken = generateAccessToken(user);
+            const refreshToken = generateRefreshToken(user);
+
+            res.cookie('jwt', refreshToken, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'none',
+                maxAge: 60 * 60 * 1000
+            });
+
+            return res.redirect('http://localhost:5173/profile');
+
+        } catch (error) {
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+    })(req, res, next);
+
+};
+
+
 
 const generateAccessToken = (user) => {
     const accessTokenPayload = { username: user.username, role: user.role };
@@ -981,4 +1007,5 @@ module.exports = {
     callBackFromGoogleCompany,
     callBackFromGoogle,
     callBackFromGoogleStudent,
+    loginUserWithGitHub
 };
