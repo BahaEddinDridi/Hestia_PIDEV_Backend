@@ -111,6 +111,14 @@ const userSchema = new mongoose.Schema({
         enum: ['public', 'private'],
         default: 'public',
     },
+    active: {
+        type: Boolean,
+        default: true,
+    },
+    deactivationEndTime: {
+        type: Date,
+        default: null,
+    },
     experience:[Experience.schema],
     education:[Education.schema],
     project:[Project.schema],

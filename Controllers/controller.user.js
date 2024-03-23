@@ -2,11 +2,12 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const passport = require('../Config/passport');
 const User = require('../Models/user');
-const asyncHandler = require('express-async-handler')
+const asyncHandler = require('express-async-handler');
+const schedule = require('node-schedule');
 
 const registerUser = async (req, res) => {
     try {
-        const { firstName, lastName, birthDate, username, email, password, gender , location, phoneNumber,accountVisibility, project,title,experience,education,role,CompanyLink,Country } = req.body;
+        const { firstName, lastName, birthDate, username, email, password, gender ,active,deactivationEndTime, location, phoneNumber,accountVisibility, project,title,experience,education,role,CompanyLink,Country } = req.body;
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -22,6 +23,8 @@ const registerUser = async (req, res) => {
             phoneNumber,
             title:'',
             image:'',
+            active:true,
+            deactivationEndTime:null,
             accountVisibility:'public',
             coverimage:'',
             experience:[],
@@ -106,7 +109,60 @@ const uploadcoverimage= async (req,res)=>{
         res.status(500).json({ error: 'Internal Server Error' });
       }
 }
-//ajouter education 
+//desactive account  
+const deactivatedaccount= async(req,res)=>{
+    const {username,duration,password}=req.body;
+    
+
+           
+    if (!username ) {
+        return res.status(400).json({ error: "Missing username" });
+    }
+    try {
+
+        const user = await User.findOne({ username: username });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        const isPasswordValid = await user.isValidPassword(password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ error: 'Invalid email or password' });
+        }
+        if (duration === '1' || duration === '24' || duration === '48') {
+            deactivationEndTime = new Date(Date.now() + parseInt(duration)  * 60 * 1000);
+            user.active = false;
+            user.deactivationEndTime = deactivationEndTime;
+            await user.save();
+            scheduleReactivation(user, deactivationEndTime);
+            return res.status(200).json({ message: `Account disabled for${duration} heures`, user });
+         }else if (duration === 'deactivate the account forever') {
+            user.active = false;
+            user.deactivationEndTime = null;
+            await user.save();
+            return res.status(200).json({ message: "Account disabled indefinitely", user });
+        } else if (!isNaN(parseInt(duration))) {
+            const deactivationEndTime = new Date(Date.now() + parseInt(duration) * 60 * 1000);
+            user.active = false;
+            user.deactivationEndTime = deactivationEndTime;
+            await user.save();
+            scheduleReactivation(user, deactivationEndTime);
+            return res.status(200).json({ message: `Account disabled for${duration} heures`, user });
+        } else {
+            return res.status(400).json({ error: "Invalid deactivation duration" });
+        }
+    } catch (error) {
+        console.error("Error finding user:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+} 
+function scheduleReactivation(user, deactivationEndTime) {
+    schedule.scheduleJob(deactivationEndTime, async () => {
+        user.active = true;
+        user.deactivationEndTime = null;
+        await user.save();
+        console.log(`Le compte de l'utilisateur ${user.username} a été réactivé.`);
+    });
+}
 
 module.exports = {
     registerUser,
@@ -114,4 +170,5 @@ module.exports = {
     getinfouser,
     uploadimage,
     uploadcoverimage,
+    deactivatedaccount,
 };
