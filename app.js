@@ -15,6 +15,9 @@ const connectDB = require('./Config/db');
 const dashboardRoute=require('./Routes/dashboard')
 const passport = require('passport')
 const statisticsRoute=require('./Routes/statistiques')
+const jobRoute=require('./Routes/job')
+const intershipRoute=require('./Routes/intership')
+
 
 const app = express();
 app.use(cookieParser());
@@ -39,6 +42,8 @@ app.use('/dashboard',dashboardRoute);
 app.use('/google' , googleRoutes);
 app.use('/oAuth' , oAuthRoutes);
 app.use('/stats' , statisticsRoute);
+app.use('/job' , jobRoute);
+app.use('/intership' ,intershipRoute);
 
 
 
