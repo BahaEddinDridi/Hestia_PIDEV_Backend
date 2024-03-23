@@ -1,34 +1,53 @@
 const mongoose = require('mongoose');
 
+
 const jobSchema = new mongoose.Schema({
     jobTitle : {
         type: String,
-        required: true,
     },
-    jobCompany : {
+    jobAdress : {
         type: String,
-        required: true,
+    },
+    jobLocation : {
+        type: String,
+        enum: ["Ariana","Beja","Ben Arous","Bizerte","Gabes","Gafsa","Jendouba","Kairouan","Kasserine","Kebili","Kef","Mahdia","Manouba","Medenine","Monastir","Nabeul","Sfax","Sidi Bouzid","Siliana","Sousse","Tataouine","Tozeur","Tunis","Zaghouan","Other"],      
     },
     jobDescription : {
         type: String,
-        required: true,
     },
     salary: {
         type: Number,
-        required: true,
         min: 0,
     },
-    jobType: {
+    jobPost : {
         type: String,
-        required: true,
+    },
+    jobfield: {
+        type: String,
+        enum: ['Computer Science', 'Mechanical Engineering','Electromechanical Engineering','Civil Engineering','Business'],
+    },
+    jobStartDate: {
+        type: Date,
     },
     jobApplicationDeadline: {
         type: Date,
-        required: true,
     },
-    jobRequirement: {
+    jobRequiredSkills: {
         type: String,
-        required: true,
+    },
+    jobRequiredEducation: {
+        type: String,
+        enum: ['Bachelor degree', 'Engineering degree'],
+    },
+    jobRequiredExperience: {
+        type: String,
+        enum: ['Junior', 'Intermediate','Senior','Entry-level','Mid-level','Experienced','Expert','Lead'],
+    },
+    contactNumber: {
+        type: Number,
+    },
+    jobOtherInformation: {
+        type: String,
     },
 });
 

@@ -6,8 +6,11 @@ const verifyJWT = require('../Middlewares/verifyJWT')
 const educationController=require('../Controllers/controller.education');
 const experienceController=require('../Controllers/controller.experience');
 const projectcontroller=require('../Controllers/controller.project');
-router.post('/register', userController.registerUser);
 
+
+
+
+router.post('/register', userController.registerUser);
 router.put('/profile/update/:username',userController.updateprofile);
 router.get('/profiles/:username',verifyJWT ,userController.getinfouser);
 router.post('/upload-image',userController.uploadimage);
