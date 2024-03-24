@@ -16,7 +16,7 @@ router.get('/export-pdf',dashboardController.exportPDF);
 router.put('/users/:id/change-status',dashboardController.desactiveProfilById);
 router.get('/ProfilAdmin/:username', dashboardController.getUserByUsernameAdmin);
 router.put('/ProfilAdmin/:username/update', dashboardController.updateByusernameAdmin);
-
+router.put('/:id/deactivate', dashboardController.desactiveProfilByIdAuto);
 
 
 

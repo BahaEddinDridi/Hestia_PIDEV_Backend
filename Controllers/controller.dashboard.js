@@ -1,7 +1,7 @@
 const express =require('express');
 const User =require('../Models/user');
 const bcrypt = require('bcrypt');
-
+const schedule = require('node-schedule');
 
 //exportation DATA
 const ExcelJS = require('exceljs');
@@ -202,6 +202,99 @@ const desactiveProfilById =async (req, res) => {
     }
   };
 
+//desactivation du compte automatique 
+const desactiveProfilByIdAuto = async (req, res) => {
+    const userId = req.params.id;
+    const { newStatus, customDeactivation } = req.body;
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+
+        if (user.ProfileStatus === 'active' && (newStatus === 'deactivated' || newStatus === 'banned')) {
+            if (newStatus === 'deactivated' && customDeactivation) {
+                let duration = customDeactivation.duration;
+                if (customDeactivation.durationType === 'minutes') {
+                    duration *= 60 * 1000; // Convertir en millisecondes
+                } else if (customDeactivation.durationType === 'hours') {
+                    duration *= 60 * 60 * 1000; // Convertir en millisecondes
+                } else if (customDeactivation.durationType === 'days') {
+                    duration *= 24 * 60 * 60 * 1000; // Convertir en millisecondes
+                } else {
+                    return res.status(400).json({ message: 'Type de durée de désactivation non valide' });
+                }
+
+                user.ProfileStatus = newStatus;
+                const now = new Date();
+                const expirationDate = new Date(now.getTime() + duration);
+                user.deactivationExpiresAt = expirationDate;
+                // scheduleReactivation(user, expirationDate);
+                checkReactivation();
+            } else {
+                user.ProfileStatus = newStatus;
+                user.deactivationExpiresAt = null;
+            }
+        } else if (user.ProfileStatus === 'deactivated' && (newStatus === 'active' || newStatus === 'banned')) {
+            user.ProfileStatus = newStatus;
+            user.deactivationExpiresAt = null;
+        } else {
+            return res.status(400).json({ message: 'Impossible de changer le ProfileStatus' });
+        }
+
+        await user.save({ runValidators: false });
+
+        return res.status(200).json({ message: 'ProfileStatus modifié avec succès', user });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Erreur serveur' });
+    }
+};
+
+function checkReactivation() {
+    setInterval(async () => {
+      const usersToReactivate = await User.find({ ProfileStatus: 'deactivated', deactivationExpiresAt: { $lte: new Date() } });
+      usersToReactivate.forEach(async (user) => {
+        user.ProfileStatus = 'active';
+        user.deactivationExpiresAt = null;
+        await user.save();
+        console.log(`Le compte de l'utilisateur ${user.username} a été réactivé.`);
+      });
+    }, 60000); // Vérifier toutes les minutes
+  }
+
+// function scheduleReactivation(user, deactivationEndTime) {
+//     schedule.scheduleJob(deactivationEndTime, async () => {
+//         user.ProfileStatus = 'active';
+//         user.deactivationExpiresAt = null;
+//         await user.save({ runValidators: false });
+//         console.log(`Le compte de l'utilisateur ${user.username} a été réactivé.`);
+//     });
+// }
+
+// let isReactivationScheduled = false;
+
+// function scheduleReactivation(user, deactivationEndTime) {
+//     if (!isReactivationScheduled) {
+//         isReactivationScheduled = true;
+//         schedule.scheduleJob(deactivationEndTime, async () => {
+//             try {
+//                 user.ProfileStatus = 'active';
+//                 user.deactivationExpiresAt = null;
+//                 await user.save({ runValidators: false });
+//                 console.log(`Le compte de l'utilisateur ${user.username} a été réactivé.`);
+//             } catch (error) {
+//                 console.error('Erreur lors de la réactivation du compte :', error);
+//             } finally {
+//                 isReactivationScheduled = false;
+//             }
+//         });
+//     }
+// }
+
+
+
 //count all users
 const countUsers =async(req,res)=>{
     try{
@@ -265,6 +358,7 @@ module.exports ={
     countUsers,
     getUserByUsernameAdmin,
     updateByusernameAdmin,
+    desactiveProfilByIdAuto,
 
     
 };

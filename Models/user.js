@@ -81,6 +81,15 @@ const userSchema = new mongoose.Schema({
         enum:['active','deactivated','pending','banned'],
         default:'active',
     },
+    deactivationExpiresAt: {
+        type: Date,
+        default: null,
+    },
+    durationType: {
+        type: String,
+        enum: ['minutes', 'hours', 'days'],
+        default: null,
+    },
      loginAttempts: {
         type: [
             {

@@ -71,12 +71,10 @@ const getUserAgeGroupStats = async (req, res) => {
                     _id: {
                         $switch: {
                             branches: [
-                                { case: { $gte: ["$birthDate", new Date("2000-01-01")] }, then: "18-24" },
-                                { case: { $gte: ["$birthDate", new Date("1995-01-01")] }, then: "25-34" },
-                                { case: { $gte: ["$birthDate", new Date("1985-01-01")] }, then: "35-44" },
-                                { case: { $gte: ["$birthDate", new Date("1975-01-01")] }, then: "45-54" },
-                                { case: { $gte: ["$birthDate", new Date("1965-01-01")] }, then: "55-64" },
-                                { case: { $lt: ["$birthDate", new Date("1965-01-01")] }, then: "65+" }
+                                { case: { $gte: ["$birthDate", new Date("2003-01-01")] }, then: "18-24" },
+                                { case: { $gte: ["$birthDate", new Date("1989-01-01")] }, then: "25-34" },
+                                { case: { $gte: ["$birthDate", new Date("1975-01-01")] }, then: "35-54" },
+                                { case: { $lt: ["$birthDate", new Date("1975-01-01")] }, then: "55+" }
                             ]
                         }
                     },

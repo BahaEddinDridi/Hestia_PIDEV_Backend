@@ -20,4 +20,18 @@ router.post('/neweducation/:username',educationController.AddEducation);
 router.post('/newexperience/:username',experienceController.AddExperience);
 //project user
 router.post('/newproject/:username',projectcontroller.Addproject);
+//delete experience 
+router.delete('/deleteExperiences/:username/:experienceId',experienceController.DeleteExperience);
+//update experience
+router.put('/updateExperiences/:username/:experienceId',experienceController.UpdateExperience);
+//get all Experiences
+router.get('/Experiences/:username', experienceController.getAllExperiences);
+//delete education 
+router.delete('/deleteEducation/:username/:educationId',educationController.DeleteEducation);
+//update education 
+router.put('/updateEducation/:username/:educationId',educationController.updateEducation);
+//get all Educations 
+router.get('/educations/:username',educationController.getAllEducations);
+
+
 module.exports = router;
