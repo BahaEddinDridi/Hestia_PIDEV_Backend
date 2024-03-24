@@ -59,8 +59,47 @@ const AddJob = async (req, res) => {
     }
 }
 
+const getAllJobs = async (req, res) => {
+    try {
+        let filters = {};
 
+        if (req.query.location) {
+            filters.jobLocation = req.query.location;
+        }
 
+        if (req.query.jobExperience) {
+            filters.jobRequiredExperience = req.query.jobExperience;
+        }
+
+        if (req.query.jobField) {
+            filters.jobfield = req.query.jobField;
+        }
+        const jobs = await job.find(filters);
+        res.json(jobs);
+    } catch (error) {
+        console.error('Error fetching jobs:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+const searchJobs = async (req, res) => {
+    try {
+        const query = req.query.query.toLowerCase();
+        // Use Mongoose to find jobs that match the query
+        const filteredJobs = await job.find({
+            $or: [
+                { jobTitle: { $regex: query, $options: 'i' } }, // Case-insensitive search for jobTitle
+                { jobPost: { $regex: query, $options: 'i' } }   // Case-insensitive search for jobPost
+            ]
+        });
+        res.json(filteredJobs);
+    } catch (error) {
+        console.error('Error searching for jobs:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
 module.exports = {
     AddJob,
+    getAllJobs,
+    searchJobs
 }
