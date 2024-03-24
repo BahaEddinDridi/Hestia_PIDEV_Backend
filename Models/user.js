@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-
+const Job = require('./job')
+const Intership = require('./internship')
 const {compare} = require("bcrypt");
 const Experience = require('./Experience');
 const Education = require('./Education');
@@ -111,9 +112,19 @@ const userSchema = new mongoose.Schema({
         enum: ['public', 'private'],
         default: 'public',
     },
+    active: {
+        type: Boolean,
+        default: true,
+    },
+    deactivationEndTime: {
+        type: Date,
+        default: null,
+    },
     experience:[Experience.schema],
     education:[Education.schema],
     project:[Project.schema],
+    job:[Job.schema],
+    intership:[Intership.schema],
 });
 
 userSchema.methods.isValidPassword = async function (password) {
