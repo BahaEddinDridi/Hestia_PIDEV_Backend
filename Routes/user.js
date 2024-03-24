@@ -19,8 +19,10 @@ router.get('/Otherprofiles/:username' ,userController.getinfouser);
 
 //education user
 router.post('/neweducation/:username',educationController.AddEducation);
+router.delete('/deleteeducation/:username/:educationId',educationController.DeleteEducation)
 //experience user
 router.post('/newexperience/:username',experienceController.AddExperience);
 //project user
 router.post('/newproject/:username',projectcontroller.Addproject);
+router.post('/deactivateAccoun',userController.deactivatedaccount);
 module.exports = router;

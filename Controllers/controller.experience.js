@@ -25,7 +25,8 @@ res.json({ success: true, data: updatedUser });
     console.error('Erreur :', error.message);
     res.status(500).json({ error: 'Erreur serveur' });
 }
-}
+};
+
 module.exports={
     AddExperience,
 }
