@@ -98,8 +98,25 @@ const searchJobs = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+const getJobById = async (req, res) => {
+    try {
+        const jobId = req.params.jobId;
+        const foundJob = await job.findById(jobId);
+        if (!foundJob) {
+            return res.status(404).json({ error: 'Job offer not found' });
+        }
+        res.json(foundJob);
+    } catch (error) {
+        console.error('Error fetching job offer by ID:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+
 module.exports = {
     AddJob,
     getAllJobs,
-    searchJobs
+    searchJobs,
+    getJobById
 }

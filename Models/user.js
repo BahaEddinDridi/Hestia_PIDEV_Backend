@@ -6,6 +6,7 @@ const Experience = require('./Experience');
 const Education = require('./Education');
 const Project = require('./Project');
 const bcrypt = require("bcrypt");
+const Application = require("./Application");
 
 const userSchema = new mongoose.Schema({
     firstName : {
@@ -120,6 +121,7 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: null,
     },
+    applications: [Application.schema],
     experience:[Experience.schema],
     education:[Education.schema],
     project:[Project.schema],

@@ -60,7 +60,9 @@ const AddIntership = async (req, res) => {
 const getAllInternships = async (req, res) => {
     try {
         let filters = {};
-
+        if (req.query.education) {
+            filters.interRequiredEducation= req.query.education;
+        }
         if (req.query.location) {
             filters.interLocation = req.query.location;
         }
