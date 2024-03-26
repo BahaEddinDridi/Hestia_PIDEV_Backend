@@ -17,6 +17,7 @@ const passport = require('passport')
 const statisticsRoute=require('./Routes/statistiques')
 const jobRoute=require('./Routes/job')
 const intershipRoute=require('./Routes/intership')
+const applicationRoute = require('./Routes/application')
 
 
 const app = express();
@@ -44,6 +45,7 @@ app.use('/oAuth' , oAuthRoutes);
 app.use('/stats' , statisticsRoute);
 app.use('/job' , jobRoute);
 app.use('/intership' ,intershipRoute);
+app.use('/application' , applicationRoute);
 
 
 
