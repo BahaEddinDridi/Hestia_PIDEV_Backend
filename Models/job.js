@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 
 
 const jobSchema = new mongoose.Schema({
+    jobCommpanyName: {
+        type: String,
+    },
     jobTitle : {
         type: String,
     },
@@ -41,12 +44,15 @@ const jobSchema = new mongoose.Schema({
     },
     jobRequiredExperience: {
         type: String,
-        enum: ['Junior', 'Intermediate','Senior','Entry-level','Mid-level','Experienced','Expert','Lead'],
+        enum: ['Junior', 'Senior','Experienced'],
     },
     contactNumber: {
         type: Number,
     },
     jobOtherInformation: {
+        type: String,
+    },
+    jobImage:{
         type: String,
     },
 });

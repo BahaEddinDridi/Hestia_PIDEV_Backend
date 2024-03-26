@@ -1,15 +1,16 @@
-const intership = require('../Models/internship');
+const Intership = require('../Models/internship'); 
 const User = require('../Models/user');
-
 
 const AddIntership = async (req, res) => {
     try {
         const username = req.params.username;
-        const { interTitle, interAdress, interLocation, interDescription, interPost, interfield, interStartDate, interApplicationDeadline, interRequiredSkills, interRequiredEducation, contactNumber, interOtherInformation } = req.body;
+        const { interCommpanyName,interTitle,interType, interAdress, interLocation, interDescription, interPost, interfield, interStartDate, interApplicationDeadline, interRequiredSkills, interRequiredEducation, contactNumber, interOtherInformation,interImage } = req.body;
 
-        // Créez d'abord l'instance de Job
-        const newIntership = new intership({
+        // Créez d'abord l'instance de Intership
+        const newIntership = new Intership({
+            interCommpanyName,
             interTitle, 
+            interType,
             interAdress,
             interLocation,
             interDescription,
@@ -20,19 +21,21 @@ const AddIntership = async (req, res) => {
             interRequiredSkills,
             interRequiredEducation,
             contactNumber,
-            interOtherInformation: '',
+            interOtherInformation,
+            interImage,
         });
 
-        // Enregistrez le nouvel emploi dans la collection des emplois (jobs)
+        // Enregistrez le nouvel internat dans la collection des internats (interships)
         await newIntership.save();
 
-        // Ensuite, mettez à jour l'utilisateur pour ajouter le nouvel emploi
+        // Ensuite, mettez à jour l'utilisateur pour ajouter le nouvel internat
         const updatedUser = await User.findOneAndUpdate(
             { username: username },
             {
                 $push: {
                     intership: {
                         interTitle,
+                        interType,
                         interAdress,
                         interLocation,
                         interDescription,
@@ -43,7 +46,8 @@ const AddIntership = async (req, res) => {
                         interRequiredSkills,
                         interRequiredEducation,
                         contactNumber,
-                        interOtherInformation: '',
+                        interOtherInformation,
+                        interOtherInformation,
                     }
                 }
             },
@@ -56,8 +60,6 @@ const AddIntership = async (req, res) => {
         res.status(500).json({ error: 'Erreur serveur' });
     }
 }
-
-
 
 module.exports = {
     AddIntership,
