@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const Application = require("./Application");
+
 
 
 const jobSchema = new mongoose.Schema({
@@ -49,6 +51,7 @@ const jobSchema = new mongoose.Schema({
     jobOtherInformation: {
         type: String,
     },
+    jobApplications: [Application.schema],
 });
 
 const Job = mongoose.model('Job', jobSchema);
