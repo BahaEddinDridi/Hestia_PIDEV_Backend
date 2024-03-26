@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 
 const internshipSchema = new mongoose.Schema({
+    interCommpanyName : {
+        type : String,
+    },
     interTitle : {
         type: String,
     },
@@ -38,6 +41,13 @@ const internshipSchema = new mongoose.Schema({
         type: Number,
     },
     interOtherInformation: {
+        type: String,
+    },
+    interType: {
+        type : String,
+        enum: ['Summer Internship','PFE Internship'],
+    },
+    interImage:{
         type: String,
     },
 });

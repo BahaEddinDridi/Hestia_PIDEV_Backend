@@ -65,6 +65,8 @@ const updateprofile = async(req,res) =>{
         userToUpdate.title=title;
         await userToUpdate.save();
         res.json({message: 'Profile updated successfully',userToUpdate});
+        
+        
     }catch(error){
         console.error(error);
         res.status(500).json({error:'Internal server Error'});

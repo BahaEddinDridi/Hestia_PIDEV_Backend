@@ -4,6 +4,9 @@ const Application = require("./Application");
 
 
 const jobSchema = new mongoose.Schema({
+    jobCommpanyName: {
+        type: String,
+    },
     jobTitle : {
         type: String,
     },
@@ -43,7 +46,7 @@ const jobSchema = new mongoose.Schema({
     },
     jobRequiredExperience: {
         type: String,
-        enum: ['Junior', 'Intermediate','Senior','Entry-level','Mid-level','Experienced','Expert','Lead'],
+        enum: ['Junior', 'Senior','Experienced'],
     },
     contactNumber: {
         type: Number,
@@ -52,6 +55,9 @@ const jobSchema = new mongoose.Schema({
         type: String,
     },
     jobApplications: [Application.schema],
+    jobImage:{
+        type: String,
+    },
 });
 
 const Job = mongoose.model('Job', jobSchema);
