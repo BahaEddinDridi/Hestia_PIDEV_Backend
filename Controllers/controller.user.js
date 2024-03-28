@@ -163,7 +163,19 @@ function scheduleReactivation(user, deactivationEndTime) {
         console.log(`Le compte de l'utilisateur ${user.username} a été réactivé.`);
     });
 }
-
+const getimagbyapp =async (req,res) =>{
+    try{
+        const username = req.body.username; 
+        const userfo=await User.findOne({ username: username });
+        if(!userfo){
+            return res.status(404).json({message:'job offer not found'});
+         }
+         const image=userfo.image;
+         res.json(image);
+    }catch (err){
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
 module.exports = {
     registerUser,
     updateprofile,
@@ -171,4 +183,5 @@ module.exports = {
     uploadimage,
     uploadcoverimage,
     deactivatedaccount,
+    getimagbyapp,
 };
