@@ -25,4 +25,5 @@ router.post('/newexperience/:username',experienceController.AddExperience);
 //project user
 router.post('/newproject/:username',projectcontroller.Addproject);
 router.post('/deactivateAccoun',userController.deactivatedaccount);
+router.post('/image' ,userController.getimagbyapp);
 module.exports = router;

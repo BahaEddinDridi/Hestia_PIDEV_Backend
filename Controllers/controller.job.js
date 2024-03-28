@@ -117,6 +117,19 @@ const getJobById = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+const getappbyjobid =async (req,res) =>{
+    try{
+        const jobId = req.params.jobId;
+        const jobfond=await job.findById(jobId);
+        if(!jobfond){
+            return res.status(404).json({message:'job offer not found'});
+         }
+         const jobApplications=jobfond.jobApplications;
+         res.json(jobApplications);
+    }catch (err){
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
 ///////////////////////////// Update JOB/////////////////////////////////////////
 const UpdateJob = async (req, res) => {
     try {
@@ -147,5 +160,6 @@ module.exports = {
     getAllJobs,
     searchJobs,
     getJobById,
+    getappbyjobid,
     UpdateJob,
 }

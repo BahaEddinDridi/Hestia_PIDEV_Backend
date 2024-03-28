@@ -11,4 +11,5 @@ router.put('/UpdateJob/:username/:jobId', controllerJob.UpdateJob);
 router.get('/GetAllJobs', controllerJob.getAllJobs);
 router.get('/searchJobs', controllerJob.searchJobs);
 router.get('/getJobById/:jobId', controllerJob.getJobById);
+router.get('/getapp/:jobId', controllerJob.getappbyjobid);
 module.exports = router;
