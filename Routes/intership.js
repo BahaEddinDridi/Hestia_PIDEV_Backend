@@ -4,5 +4,9 @@ const controllerIntership = require('../Controllers/controller.intership')
 
 
 router.post('/AddIntership/:username', controllerIntership.AddIntership);
+router.post('/AddIntership1/:username', controllerIntership.AddIntership1);
+router.get('/getAllIntershipsOpportDeadlinefinalized', controllerIntership.getInternshipsByRoleAndDeadline);
+router.get('/getAllFuturIntershipsOpport', controllerIntership.getFutureInternshipsByRole);
+router.delete('/deleteIntership/:username/:id', controllerIntership.deleteInternshipByIdAndUsername);
 
 module.exports = router;
