@@ -33,7 +33,7 @@ router.put('/updateExperiences/:username/:experienceId',experienceController.Upd
 //get all Experiences
 router.get('/Experiences/:username', experienceController.getAllExperiences);
 //delete education 
-router.delete('/deleteEducation/:username/:educationId',educationController.DeleteEducation);
+router.delete('/deleteEducation/:username/:educationId',educationController.DeleteEducationOmayma);
 //update education 
 router.put('/updateEducation/:username/:educationId',educationController.updateEducation);
 //get all Educations 
