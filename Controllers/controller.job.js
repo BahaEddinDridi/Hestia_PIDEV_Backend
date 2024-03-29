@@ -79,7 +79,7 @@ const getAllJobs = async (req, res) => {
         if (req.query.jobField) {
             filters.jobfield = req.query.jobField;
         }
-        const jobs = await job.find(filters);
+        const jobs = await Job.find(filters);
         res.json(jobs);
     } catch (error) {
         console.error('Error fetching jobs:', error);
@@ -91,7 +91,7 @@ const searchJobs = async (req, res) => {
     try {
         const query = req.query.query.toLowerCase();
         // Use Mongoose to find jobs that match the query
-        const filteredJobs = await job.find({
+        const filteredJobs = await Job.find({
             $or: [
                 { jobTitle: { $regex: query, $options: 'i' } }, // Case-insensitive search for jobTitle
                 { jobPost: { $regex: query, $options: 'i' } }   // Case-insensitive search for jobPost
@@ -107,7 +107,7 @@ const searchJobs = async (req, res) => {
 const getJobById = async (req, res) => {
     try {
         const jobId = req.params.jobId;
-        const foundJob = await job.findById(jobId);
+        const foundJob = await Job.findById(jobId);
         if (!foundJob) {
             return res.status(404).json({ error: 'Job offer not found' });
         }
@@ -120,7 +120,7 @@ const getJobById = async (req, res) => {
 const getappbyjobid =async (req,res) =>{
     try{
         const jobId = req.params.jobId;
-        const jobfond=await job.findById(jobId);
+        const jobfond=await Job.findById(jobId);
         if(!jobfond){
             return res.status(404).json({message:'job offer not found'});
          }

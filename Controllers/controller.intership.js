@@ -241,7 +241,7 @@ const searchInternships = async (req, res) => {
 module.exports = {
     AddIntership,
     getAllInternships,
-    searchInternships
+    searchInternships,
     AddIntership1,
     getInternshipsByRoleAndDeadline,
     getFutureInternshipsByRole,
