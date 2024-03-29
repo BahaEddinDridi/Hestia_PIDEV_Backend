@@ -5,7 +5,7 @@ const User = require('../Models/user');
 const AddJob = async (req, res) => {
     try {
         const username = req.params.username;
-        const { jobCommpanyName, jobTitle, jobAdress, jobLocation, jobDescription, salary, jobfield, jobStartDate, jobApplicationDeadline, jobRequiredSkills, jobRequiredEducation, jobRequiredExperience, jobOtherInformation, jobPost, jobImage } = req.body;
+        const { jobCommpanyName, jobTitle, jobAdress, jobLocation, jobDescription, salary, jobfield, jobStartDate, jobApplicationDeadline, jobRequiredSkills, jobRequiredEducation, jobRequiredExperience, jobOtherInformation, jobPost, jobImage,contactNumber } = req.body;
 
         // Créez d'abord l'instance de Job
         const newJob = new Job({
@@ -21,9 +21,10 @@ const AddJob = async (req, res) => {
             jobRequiredSkills,
             jobRequiredEducation,
             jobRequiredExperience,
-            jobOtherInformation: '',
+            jobOtherInformation,
             jobPost,
             jobImage,
+            contactNumber,
         });
         
         // Enregistrez le nouvel emploi dans la collection des emplois (jobs)
@@ -54,6 +55,7 @@ const AddJob = async (req, res) => {
                         jobOtherInformation,
                         jobPost,
                         jobImage,
+                        contactNumber,
                     }
                 }
             },

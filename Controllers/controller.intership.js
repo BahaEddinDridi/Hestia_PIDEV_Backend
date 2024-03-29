@@ -27,7 +27,9 @@ const AddIntership = async (req, res) => {
         });
 
         // Enregistrez le nouvel internat dans la collection des internats (interships)
-        await newIntership.save();
+        const savedintern = await newIntership.save();
+        // Récupérez l'identifiant unique généré par la base de données
+        const internId = savedintern._id;
 
         // Ensuite, mettez à jour l'utilisateur pour ajouter le nouvel internat
         const updatedUser = await User.findOneAndUpdate(
@@ -35,6 +37,7 @@ const AddIntership = async (req, res) => {
             {
                 $push: {
                     intership: {
+                        _id: internId,
                         interTitle,
                         interType,
                         interAdress,
@@ -73,7 +76,7 @@ const getAllInternships = async (req, res) => {
         if (req.query.field) {
             filters.interfield = req.query.field;
         }
-        const internships = await intership.find(filters);
+        const internships = await Intership.find(filters);
         res.json(internships);
     } catch (error) {
         console.error('Error fetching internships:', error);
@@ -84,7 +87,7 @@ const getAllInternships = async (req, res) => {
 const searchInternships = async (req, res) => {
     try {
         const query = req.query.query.toLowerCase();
-        const filteredInternships = await intership.find({
+        const filteredInternships = await Intership.find({
             $or: [
                 { interTitle: { $regex: query, $options: 'i' } },
                 { interPost: { $regex: query, $options: 'i' } }
@@ -97,8 +100,51 @@ const searchInternships = async (req, res) => {
     }
 };
 
+const getInterById = async (req, res) => {
+    try {
+        const internId = req.params.internId;
+        const foundinter = await Intership.findById(internId);
+        if (!foundinter) {
+            return res.status(404).json({ error: 'Job offer not found' });
+        }
+        res.json(foundinter);
+    } catch (error) {
+        console.error('Error fetching job offer by ID:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+
+const UpdateInter = async (req, res) => {
+    try {
+        const internId = req.params.internId; // Extract job ID from request parameters
+        const updateFields = req.body; // Extract updated fields from request body
+
+        // Find the job by ID and update it with the new fields
+        const UpdateInter = await Intership.findByIdAndUpdate(internId, updateFields, { new: true });
+
+        if (!UpdateInter) {
+            return res.status(404).json({ error: 'Job offer not found' });
+        }
+
+        // Update the job in the user's job array
+        const updatedUser = await User.findOneAndUpdate(
+            { 'intership._id': internId }, // Match user by job ID
+            { $set: { 'intership.$': UpdateInter } }, // Update the matched job in the user's job array
+            { new: true }
+        );
+
+        res.json({ success: true, data: { UpdateInter, updatedUser } });
+    } catch (error) {
+        console.error('Error updating job offer:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 module.exports = {
     AddIntership,
     getAllInternships,
-    searchInternships
+    searchInternships,
+    getInterById,
+    UpdateInter,
 }
