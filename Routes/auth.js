@@ -17,7 +17,7 @@ router.post('/linkedin/callback', (req, res) => {
 });
 router.post('/updatePassword', authController.updatePassword);
 router.post('/send-email', authController.emailVerif);
-router.post('/Reset_Passwords_Mail/:_id/:token', authController.resetPassword);
+router.post('/Reset_Passwords_Mail/:_id', authController.resetPassword);
 router.post('/addRecoveryMail', authController.addRecoveryMail);
 router.post('/SecurityQuestion', authController.SecurityQuestion);
 router.post('/verifySecurityQuestion', authController.verifySecurityQuestion);
