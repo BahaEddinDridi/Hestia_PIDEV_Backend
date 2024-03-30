@@ -214,7 +214,7 @@ const getAllInternships = async (req, res) => {
         if (req.query.field) {
             filters.interfield = req.query.field;
         }
-        const internships = await intership.find(filters);
+        const internships = await Intership.find(filters);
         res.json(internships);
     } catch (error) {
         console.error('Error fetching internships:', error);
@@ -225,7 +225,7 @@ const getAllInternships = async (req, res) => {
 const searchInternships = async (req, res) => {
     try {
         const query = req.query.query.toLowerCase();
-        const filteredInternships = await intership.find({
+        const filteredInternships = await Intership.find({
             $or: [
                 { interTitle: { $regex: query, $options: 'i' } },
                 { interPost: { $regex: query, $options: 'i' } }
