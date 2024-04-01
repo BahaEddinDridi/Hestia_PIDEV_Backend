@@ -257,8 +257,6 @@ module.exports = {
     AddIntership,
     getAllInternships,
     searchInternships,
-    getInterById,
-    UpdateInter,,
     UpdateInternship,
     getInternshipsByRoleAndDeadline,
     getFutureInternshipsByRole,
