@@ -69,47 +69,6 @@ const AddIntership = async (req, res) => {
     }
 }
 
-//add interships avec le meme id 
-const AddIntership1 = async (req, res) => {
-    try {
-        const username = req.params.username;
-        const user = await User.findOne({ username: username });
-
-        if (!user) {
-            return res.status(404).json({ error: 'Utilisateur non trouvé' });
-        }
-
-        const { interTitle, interAdress, interLocation, interDescription, interPost, interfield, interStartDate, interApplicationDeadline, interRequiredSkills, interRequiredEducation, contactNumber, interOtherInformation } = req.body;
-
-        // Créez d'abord l'instance de Intership
-        const newIntership = new intership({
-            interTitle,
-            interAdress,
-            interLocation,
-            interDescription,
-            interPost,
-            interfield,
-            interStartDate,
-            interApplicationDeadline,
-            interRequiredSkills,
-            interRequiredEducation,
-            contactNumber,
-            interOtherInformation,
-        });
-
-        // Enregistrez le nouvel internship dans la collection des internships
-        await newIntership.save();
-
-        // Mettez à jour l'utilisateur pour ajouter le nouvel internship
-        user.intership.push(newIntership);
-        await user.save();
-
-        res.json({ success: true, data: newIntership });
-    } catch (error) {
-        console.error('Erreur :', error.message);
-        res.status(500).json({ error: 'Erreur serveur' });
-    }
-};
 
 //get all interships opportunities passed
 const getInternshipsByRoleAndDeadline = async (req, res) => {
@@ -298,8 +257,7 @@ module.exports = {
     AddIntership,
     getAllInternships,
     searchInternships,
-    UpdateInternship,,
-    AddIntership1,
+    UpdateInternship,
     getInternshipsByRoleAndDeadline,
     getFutureInternshipsByRole,
     deleteInternshipByIdAndUsername,
