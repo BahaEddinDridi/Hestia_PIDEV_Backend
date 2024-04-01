@@ -442,7 +442,12 @@ const addRecoveryMail = async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-
+        if (user.email === recoveryEmail) {
+            return res.status(400).json({ error: 'Recovery email cannot be the same as the main email' });
+        }
+        if (user.recoveryEmail === recoveryEmail) {
+            return res.status(400).json({ error: 'Recovery email is already set' });
+        }
         // Update the user document with the recovery email
         user.recoveryEmail = recoveryEmail;
         user = await user.save();
@@ -598,7 +603,13 @@ const SecurityQuestion = async (req, res) => {
 
         // Update only the answers for the security questions
         user.securityAnswers = securityAnswers.map(item => item.answer);
-
+        if (user.securityAnswers.length !== 3) {
+            return res.status(400).json({ error: 'Please provide answers for all security questions' });
+        }
+        const existingUser = await User.findOne({ _id });
+        if (existingUser.securityAnswers.some(answer => answer === user.securityAnswers)) {
+            return res.status(404).json({ error: 'please change your answers' });
+        }
         await user.save();
 
         res.json({ status: 'Success', message: 'Security answers added successfully' });
