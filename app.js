@@ -19,6 +19,7 @@ const jobRoute=require('./Routes/job')
 const intershipRoute=require('./Routes/intership')
 const applicationRoute = require('./Routes/application')
 const CRMRoutes = require('./Routes/CRM')
+const ScrapingRoutes = require('./Routes/Scraping')
 
 
 const app = express();
@@ -48,7 +49,7 @@ app.use('/job' , jobRoute);
 app.use('/intership' ,intershipRoute);
 app.use('/application' , applicationRoute);
 app.use('/CRM', CRMRoutes);
-
+app.use('/Scraping', ScrapingRoutes);
 
 
 const PORT = process.env.PORT || 3001;
