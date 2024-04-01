@@ -9,5 +9,6 @@ router.get('/searchInternships', controllerIntership.searchInternships);router.p
 router.get('/getAllIntershipsOpportDeadlinefinalized', controllerIntership.getInternshipsByRoleAndDeadline);
 router.get('/getAllFuturIntershipsOpport', controllerIntership.getFutureInternshipsByRole);
 router.delete('/deleteIntership/:username/:id', controllerIntership.deleteInternshipByIdAndUsername);
+router.get('/getInternshipById/:internshipId', controllerIntership.getInternshipById)
 
 module.exports = router;

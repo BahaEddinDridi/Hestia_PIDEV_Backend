@@ -109,6 +109,7 @@ const getJobById = async (req, res) => {
         const jobId = req.params.jobId;
         const foundJob = await Job.findById(jobId);
         if (!foundJob) {
+            console.log("Job not found");
             return res.status(404).json({ error: 'Job offer not found' });
         }
         res.json(foundJob);

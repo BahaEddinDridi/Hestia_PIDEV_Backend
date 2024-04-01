@@ -1,6 +1,7 @@
 const Intership = require('../Models/internship'); 
 const User = require('../Models/user');
 const job = require("../Models/job");
+const Job = require("../Models/job");
 
 const AddIntership = async (req, res) => {
     try {
@@ -205,8 +206,8 @@ const deleteInternshipByIdAndUsername = async (req, res) => {
 const getAllInternships = async (req, res) => {
     try {
         let filters = {};
-        if (req.query.education) {
-            filters.interRequiredEducation= req.query.education;
+        if (req.query.type) {
+            filters.interType= req.query.type;
         }
         if (req.query.location) {
             filters.interLocation = req.query.location;
@@ -238,6 +239,22 @@ const searchInternships = async (req, res) => {
     }
 };
 
+const getInternshipById = async (req, res) => {
+    try {
+        const internshipId = req.params.internshipId;
+        console.log(internshipId)
+        const foundInternship = await Intership.findById(internshipId);
+        if (!foundInternship) {
+            console.log("Internship not found");
+            return res.status(404).json({ error: 'Internship offer not found' });
+        }
+        res.json(foundInternship);
+    } catch (error) {
+        console.error('Error fetching Internship offer by ID:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 module.exports = {
     AddIntership,
     getAllInternships,
@@ -245,5 +262,6 @@ module.exports = {
     AddIntership1,
     getInternshipsByRoleAndDeadline,
     getFutureInternshipsByRole,
-   deleteInternshipByIdAndUsername
+    deleteInternshipByIdAndUsername,
+    getInternshipById
 }

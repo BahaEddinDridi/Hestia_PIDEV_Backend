@@ -43,7 +43,10 @@ const applicationSchema = new mongoose.Schema({
     },
     jobId: {
         type: mongoose.Schema.Types.ObjectId,
-}
+    },
+    internshipId: {
+        type: mongoose.Schema.Types.ObjectId,
+    }
 });
 
 const Application = mongoose.model('Application', applicationSchema);
