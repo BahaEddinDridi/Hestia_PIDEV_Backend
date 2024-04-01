@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Application = require("./Application");
 
 const internshipSchema = new mongoose.Schema({
     interCommpanyName : {
@@ -50,6 +51,7 @@ const internshipSchema = new mongoose.Schema({
     interImage:{
         type: String,
     },
+    internshipApplications: [Application.schema],
 });
 
 const Internship = mongoose.model('Internship', internshipSchema);
