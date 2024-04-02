@@ -5,11 +5,10 @@ const mongoose = require('mongoose');
 const AddJob = async (req, res) => {
     try {
         const username = req.params.username;
-        const { jobCommpanyName,jobTitle, jobAdress, jobLocation, jobDescription, salary, jobfield, jobStartDate, jobApplicationDeadline, jobRequiredSkills, jobRequiredEducation, jobRequiredExperience, jobOtherInformation, jobPost,jobImage } = req.body;
-        
+        const { jobCommpanyName, jobTitle, jobAdress, jobLocation, jobDescription, salary, jobfield, jobStartDate, jobApplicationDeadline, jobRequiredSkills, jobRequiredEducation, jobRequiredExperience, jobOtherInformation, jobPost, jobImage,contactNumber } = req.body;
+
         // Créez d'abord l'instance de Job
         const newJob = new Job({
-
             jobCommpanyName,
             jobTitle,
             jobAdress,
@@ -22,20 +21,25 @@ const AddJob = async (req, res) => {
             jobRequiredSkills,
             jobRequiredEducation,
             jobRequiredExperience,
-            jobOtherInformation:'',
+            jobOtherInformation,
             jobPost,
             jobImage,
+            contactNumber,
         });
         
         // Enregistrez le nouvel emploi dans la collection des emplois (jobs)
-        await newJob.save();
+        const savedJob = await newJob.save();
 
-        // Ensuite, mettez à jour l'utilisateur pour ajouter le nouvel emploi
+        // Récupérez l'ID du nouvel emploi sauvegardé
+        const jobId = savedJob._id;
+
+        // Ensuite, mettez à jour l'utilisateur pour ajouter le nouvel emploi avec le même ID
         const updatedUser = await User.findOneAndUpdate(
             { username: username },
             {
                 $push: {
                     job: {
+                        _id: jobId, // Utilisez le même ID pour référencer l'emploi
                         jobCommpanyName,
                         jobTitle,
                         jobAdress,
@@ -51,6 +55,7 @@ const AddJob = async (req, res) => {
                         jobOtherInformation,
                         jobPost,
                         jobImage,
+                        contactNumber,
                     }
                 }
             },
@@ -69,7 +74,8 @@ const getAllJobs = async (req, res) => {
         let filters = {};
 
         if (req.query.location) {
-            filters.jobLocation = req.query.location;
+            const locations = req.query.location.split(',');
+            filters.jobLocation = { $in: locations };
         }
 
         if (req.query.jobExperience) {
@@ -79,7 +85,7 @@ const getAllJobs = async (req, res) => {
         if (req.query.jobField) {
             filters.jobfield = req.query.jobField;
         }
-        const jobs = await Job.find(filters);
+        const jobs = await Job.find(filters).sort({ jobStartDate: -1 });
         res.json(jobs);
     } catch (error) {
         console.error('Error fetching jobs:', error);
@@ -90,11 +96,10 @@ const getAllJobs = async (req, res) => {
 const searchJobs = async (req, res) => {
     try {
         const query = req.query.query.toLowerCase();
-        // Use Mongoose to find jobs that match the query
         const filteredJobs = await Job.find({
             $or: [
-                { jobTitle: { $regex: query, $options: 'i' } }, // Case-insensitive search for jobTitle
-                { jobPost: { $regex: query, $options: 'i' } }   // Case-insensitive search for jobPost
+                { jobTitle: { $regex: query, $options: 'i' } },
+                { jobPost: { $regex: query, $options: 'i' } }
             ]
         });
         res.json(filteredJobs);
@@ -109,6 +114,7 @@ const getJobById = async (req, res) => {
         const jobId = req.params.jobId;
         const foundJob = await Job.findById(jobId);
         if (!foundJob) {
+            console.log("Job not found");
             return res.status(404).json({ error: 'Job offer not found' });
         }
         res.json(foundJob);
@@ -117,6 +123,7 @@ const getJobById = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
 const getappbyjobid =async (req,res) =>{
     try{
         const jobId = req.params.jobId;
@@ -133,22 +140,27 @@ const getappbyjobid =async (req,res) =>{
 ///////////////////////////// Update JOB/////////////////////////////////////////
 const UpdateJob = async (req, res) => {
     try {
-        const jobId = req.params.id; // Récupérer l'ID du job à mettre à jour
-        const jobDataToUpdate = req.body; // Données à mettre à jour
+        const jobId = req.params.jobId; // Extract job ID from request parameters
+        const updateFields = req.body; // Extract updated fields from request body
 
-        // Mettre à jour le job dans la collection des jobs
-        const updatedJob = await Job.findByIdAndUpdate(jobId, jobDataToUpdate, { new: true });
+        // Find the job by ID and update it with the new fields
+        const updatedJob = await Job.findByIdAndUpdate(jobId, updateFields, { new: true });
 
-        // Vérifiez si le job a été mis à jour avec succès
         if (!updatedJob) {
-            return res.status(404).json({ error: 'Job not found' });
+            return res.status(404).json({ error: 'Job offer not found' });
         }
 
-        // Envoyez la réponse avec le job mis à jour
-        res.json({ success: true, data: updatedJob });
+        // Update the job in the user's job array
+        const updatedUser = await User.findOneAndUpdate(
+            { 'job._id': jobId }, // Match user by job ID
+            { $set: { 'job.$': updatedJob } }, // Update the matched job in the user's job array
+            { new: true }
+        );
+
+        res.json({ success: true, data: { updatedJob, updatedUser } });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Error updating job offer:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 };
 
