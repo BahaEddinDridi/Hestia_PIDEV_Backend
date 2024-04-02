@@ -39,5 +39,7 @@ router.put('/updateEducation/:username/:educationId',educationController.updateE
 //get all Educations 
 router.get('/educations/:username',educationController.getAllEducations);
 
-
+router.delete('/deleteproject/:username/:projectId',projectcontroller.Deleteproject);
+router.get('/projects/:username',projectcontroller.getAllproject);
+router.put('/updateproject/:username/:projectId',projectcontroller.Updateproject);
 module.exports = router;
