@@ -75,7 +75,7 @@ const AddIntership1 = async (req, res) => {
         const { interTitle, interAdress, interLocation, interDescription, interPost, interfield, interStartDate, interApplicationDeadline, interRequiredSkills, interRequiredEducation, contactNumber, interOtherInformation } = req.body;
 
         // Créez d'abord l'instance de Intership
-        const newIntership = new intership({
+        const newIntership = new Intership({
             interTitle,
             interAdress,
             interLocation,
@@ -118,7 +118,7 @@ const getInternshipsByRoleAndDeadline = async (req, res) => {
             username: user.username,
             interships: user.intership.filter(intership => intership && intership.interApplicationDeadline && new Date(intership.interApplicationDeadline) < today)
         })).filter(user => user.interships.length > 0);
-        
+
         if (!filteredInternships || filteredInternships.length === 0) {
             return res.status(404).json({ message: 'No users with interships found for the specified role and deadline' });
         }
@@ -148,7 +148,7 @@ const getFutureInternshipsByRole = async (req, res) => {
             }
             return null;
         }).filter(user => user && user.interships.length > 0);
-        
+
         if (!futureInternships || futureInternships.length === 0) {
             return res.status(404).json({ message: 'No users with future interships found for the specified role' });
         }
@@ -188,7 +188,7 @@ const deleteInternshipByIdAndUsername = async (req, res) => {
         await user.save();
 
         // Supprimer l'internship de la collection des internships (Internship)
-        await intership.deleteOne({ _id: internshipIdToDelete });
+        await Intership.deleteOne({ _id: internshipIdToDelete });
 
         res.json({ message: 'Internship deleted successfully' });
     } catch (error) {
