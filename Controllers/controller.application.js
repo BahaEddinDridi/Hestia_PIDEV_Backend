@@ -177,12 +177,89 @@ const updateInternshipApplication = async (req, res) => {
     }
 };
 
+const getApplicationsByUsername = async (req, res) => {
+    try {
+        const { username } = req.params;
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        const applications = await Application.find({ applicantUsername: username }).sort({submitDate :-1});
+        res.status(200).json({ applications });
+    } catch (error) {
+        console.error('Error fetching applications by username:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+const deleteApplication = async (req, res) => {
+    try {
+        const { applicationId } = req.params;
+        console.log('Application ID:', applicationId);
+
+        const application = await Application.findById(applicationId);
+        console.log('Application:', application);
+
+        if (!application) {
+            return res.status(404).json({ error: 'Application not found' });
+        }
+
+        const user = await User.findOne({ username: application.applicantUsername });
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
 
 
+        const userIndex = user.applications.findIndex(application => application && application._id.toString() === applicationId);
+        console.log('user', userIndex)
+        if (userIndex !== -1) {
+            user.applications.splice(userIndex, 1);
+            await user.save();
+        }
+
+
+        if (application.jobId) {
+            const job = await Job.findById(application.jobId);
+            if (!job) {
+                return res.status(404).json({ error: 'Job not found' });
+            }
+
+            const jobIndex = job.jobApplications.findIndex(application => application && application._id.toString() === applicationId);
+            console.log('job', jobIndex)
+            if (jobIndex !== -1) {
+                job.jobApplications.splice(jobIndex, 1);
+                await job.save();
+            }
+        } else if (application.internshipId) {
+            const internship = await Intership.findById(application.internshipId);
+            if (!internship) {
+                return res.status(404).json({ error: 'Internship not found' });
+            }
+
+            const internshipIndex = internship.internshipApplications.findIndex(application => application && application._id.toString() === applicationId);
+            console.log('intership', internshipIndex)
+            if (internshipIndex !== -1) {
+                internship.internshipApplications.splice(internshipIndex, 1);
+                await internship.save();
+            }
+        }
+
+
+        await Application.findByIdAndDelete(applicationId);
+
+        res.status(200).json({ message: 'Application deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting application:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
 
 module.exports = {
     saveApplication,
     updateApplication,
     saveInternshipApplication,
-    updateInternshipApplication
+    updateInternshipApplication,
+    getApplicationsByUsername,
+    deleteApplication
 };

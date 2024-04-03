@@ -74,7 +74,8 @@ const getAllJobs = async (req, res) => {
         let filters = {};
 
         if (req.query.location) {
-            filters.jobLocation = req.query.location;
+            const locations = req.query.location.split(',');
+            filters.jobLocation = { $in: locations };
         }
 
         if (req.query.jobExperience) {
@@ -84,7 +85,7 @@ const getAllJobs = async (req, res) => {
         if (req.query.jobField) {
             filters.jobfield = req.query.jobField;
         }
-        const jobs = await Job.find(filters);
+        const jobs = await Job.find(filters).sort({ jobStartDate: -1 });
         res.json(jobs);
     } catch (error) {
         console.error('Error fetching jobs:', error);
@@ -95,11 +96,10 @@ const getAllJobs = async (req, res) => {
 const searchJobs = async (req, res) => {
     try {
         const query = req.query.query.toLowerCase();
-        // Use Mongoose to find jobs that match the query
         const filteredJobs = await Job.find({
             $or: [
-                { jobTitle: { $regex: query, $options: 'i' } }, // Case-insensitive search for jobTitle
-                { jobPost: { $regex: query, $options: 'i' } }   // Case-insensitive search for jobPost
+                { jobTitle: { $regex: query, $options: 'i' } },
+                { jobPost: { $regex: query, $options: 'i' } }
             ]
         });
         res.json(filteredJobs);

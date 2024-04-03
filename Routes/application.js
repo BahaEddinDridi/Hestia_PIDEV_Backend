@@ -9,4 +9,7 @@ router.post('/saveInternshipApplication', ApplicationController.saveInternshipAp
 router.put('/updateApplication/:applicationId', ApplicationController.updateApplication);
 router.put('/updateInternshipApplication/:applicationId', ApplicationController.updateInternshipApplication);
 
+router.get('/getApplicationsByUsername/:username', ApplicationController.getApplicationsByUsername);
+
+router.delete('/deleteApplication/:applicationId', ApplicationController.deleteApplication);
 module.exports = router;

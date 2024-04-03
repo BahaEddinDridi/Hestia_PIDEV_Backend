@@ -30,9 +30,17 @@ const loginUser = async (req, res, next) => {
                 return res.status(401).json({ error: 'Invalid email or password' });
             }
 
-            // // Clear login attempts upon successful login
-            //  user.loginAttempts = [];
-            //  await user.save();
+            if (!user.active) {
+                return res.status(403).json({ error: 'Your profile is deactivated' });
+            }
+
+            if (user.ProfileStatus === 'deactivated') {
+                return res.status(403).json({ error: 'Your profile is deactivated' });
+            }
+
+            if (user.ProfileStatus === 'banned') {
+                return res.status(403).json({ error: 'Your profile has been banned' });
+            }
 
             req.login(user, { session: false }, async (error) => {
                 if (error) {
