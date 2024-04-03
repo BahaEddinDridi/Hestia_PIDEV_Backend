@@ -8,7 +8,6 @@ const applicationSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
-        unique: true,
         match: /^\S+@\S+\.\S+$/
     },
     phoneNumber: {
@@ -21,7 +20,6 @@ const applicationSchema = new mongoose.Schema({
     },
     resume: {
         type: String,
-        required: true
     },
     submitDate: {
         type: Date,
@@ -34,6 +32,21 @@ const applicationSchema = new mongoose.Schema({
     applicantUsername: {
         type: String,
     },
+    companyName: {
+        type: String,
+    },
+    companyLogo: {
+        type: String,
+    },
+    jobTitle: {
+        type: String,
+    },
+    jobId: {
+        type: mongoose.Schema.Types.ObjectId,
+    },
+    internshipId: {
+        type: mongoose.Schema.Types.ObjectId,
+    }
 });
 
 const Application = mongoose.model('Application', applicationSchema);
