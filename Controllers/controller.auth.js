@@ -173,7 +173,7 @@ const emailVerif = async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-        const token = jwt.sign({ id: user._id }, "jwt_secret_key", { expiresIn: "30m" });
+        
         const mailOptions = {
             from: 'hestia2024.5@outlook.com',
             to: email,
@@ -222,7 +222,7 @@ const emailVerif = async (req, res) => {
                 <h1>Reset Your Password</h1>
                 <p>Dear ${user.username},</p>
                 <p>Please click the following link to reset your password:</p>
-                <p><a href="http://localhost:5173/auth/reset-password/${user._id}/${token}">Reset Password</a></p>
+                <p><a href="http://localhost:5173/auth/reset-password/${user._id}">Reset Password</a></p>
                 <p>If you did not request a password reset, please ignore this email.</p>
                 <p>Regards,<br>Your Application Team</p>
             </div>
@@ -248,7 +248,7 @@ const emailVerif = async (req, res) => {
     }
 };
 const resetPassword = async (req, res) => {
-    const { _id, token } = req.params;
+    const { _id } = req.params;
     const { password } = req.body;
 
     try {
@@ -258,7 +258,7 @@ const resetPassword = async (req, res) => {
 
         const hash = await bcrypt.hash(password, 10);
 
-        const user = await User.findById(_id);
+        const user = await User.findOne({ _id });
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -450,7 +450,12 @@ const addRecoveryMail = async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-
+        if (user.email === recoveryEmail) {
+            return res.status(400).json({ error: 'Recovery email cannot be the same as the main email' });
+        }
+        if (user.recoveryEmail === recoveryEmail) {
+            return res.status(400).json({ error: 'Recovery email is already set' });
+        }
         // Update the user document with the recovery email
         user.recoveryEmail = recoveryEmail;
         user = await user.save();
@@ -606,7 +611,13 @@ const SecurityQuestion = async (req, res) => {
 
         // Update only the answers for the security questions
         user.securityAnswers = securityAnswers.map(item => item.answer);
-
+        if (user.securityAnswers.length !== 3) {
+            return res.status(400).json({ error: 'Please provide answers for all security questions' });
+        }
+        const existingUser = await User.findOne({ _id });
+        if (existingUser.securityAnswers.some(answer => answer === user.securityAnswers)) {
+            return res.status(404).json({ error: 'please change your answers' });
+        }
         await user.save();
 
         res.json({ status: 'Success', message: 'Security answers added successfully' });
