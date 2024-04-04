@@ -20,7 +20,7 @@ const intershipRoute=require('./Routes/intership')
 const applicationRoute = require('./Routes/application')
 const CRMRoutes = require('./Routes/CRM')
 const ScrapingRoutes = require('./Routes/Scraping')
-
+const gptchatbotRoute = require('./Routes/gptchatbot')
 
 const app = express();
 app.use(cookieParser());
@@ -49,7 +49,7 @@ app.use('/job' , jobRoute);
 app.use('/intership' ,intershipRoute);
 app.use('/application' , applicationRoute);
 app.use('/CRM', CRMRoutes);
-app.use('/Scraping', ScrapingRoutes);
+app.use('/Scraping', ScrapingRoutes);app.use('/gptchatbot' , gptchatbotRoute);
 
 
 const PORT = process.env.PORT || 3001;
