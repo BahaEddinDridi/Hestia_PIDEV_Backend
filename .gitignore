@@ -4,3 +4,10 @@
 node_modules
 /logs/reqLog.log
 /logs/errLog.log
+/skill/job_descriptions.xlsx
+/Data/jobs.json
+/Data/job_descriptions.json
+/Data/job_descriptions.csv
+/Data/job_descriptions.xlsx
+/Data/job_descriptions.xlsx
+/Data/Jobs.xlsx
