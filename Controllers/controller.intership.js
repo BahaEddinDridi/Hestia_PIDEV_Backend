@@ -252,6 +252,19 @@ const getInternshipById = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+const getappbyintershipid =async (req,res) =>{
+    try{
+        const intershipid = req.params.intershipid;
+        const intershipfond=await Intership.findById(intershipid);
+        if(!intershipfond){
+            return res.status(404).json({message:'inter offer not found'});
+         }
+         const internshipApplications=intershipfond.internshipApplications;
+         res.json(internshipApplications);
+    }catch (err){
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
 
 module.exports = {
     AddIntership,
@@ -261,5 +274,6 @@ module.exports = {
     getInternshipsByRoleAndDeadline,
     getFutureInternshipsByRole,
     deleteInternshipByIdAndUsername,
-    getInternshipById
+    getInternshipById,
+    getappbyintershipid,
 }
