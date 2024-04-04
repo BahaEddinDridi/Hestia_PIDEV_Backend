@@ -256,11 +256,83 @@ const deleteApplication = async (req, res) => {
     }
 };
 
+//get jobApplication Available 
+const getAvailableJobsApplications = async (req, res) => {
+    try {
+        const today = new Date();
+        const jobs = await Job.find({
+            jobApplicationDeadline: { $gt: today },
+            jobApplications: { $exists: true, $not: { $size: 0 } },
+            jobCommpanyName: { $exists: true },
+        }).select('jobCommpanyName jobTitle jobApplicationDeadline jobApplications');
+        
+        res.status(200).json(jobs);
+    } catch (error) {
+        console.error('Error fetching available jobs:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+//get jobApplication Not Available
+const getUnavailableJobsApplications = async (req, res) => {
+    try {
+        const today = new Date();
+        const jobs = await Job.find({
+            jobApplicationDeadline: { $lt: today },
+            jobApplications: { $exists: true, $not: { $size: 0 } },
+            jobCommpanyName: { $exists: true },
+        }).select('jobCommpanyName jobTitle jobApplicationDeadline jobApplications');
+        
+        res.status(200).json(jobs);
+    } catch (error) {
+        console.error('Error fetching unavailable jobs:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+// get IntershipApplication available 
+const getAvailableInternshipApplications = async (req, res) => {
+    try {
+        const today = new Date();
+        const internships = await Intership.find({
+            interApplicationDeadline: { $gt: today },
+            internshipApplications: { $exists: true, $not: { $size: 0 } },
+            interCommpanyName: { $exists: true },
+        }).select('interCommpanyName interTitle interApplicationDeadline internshipApplications');
+        
+        res.status(200).json(internships);
+    } catch (error) {
+        console.error('Error fetching available internship applications:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+//get IntershipApplication Not available 
+const getUnavailableInternshipApplications = async (req, res) => {
+    try {
+        const today = new Date();
+        const internships = await Intership.find({
+            interApplicationDeadline: { $lt: today },
+            internshipApplications: { $exists: true, $not: { $size: 0 } },
+            interCommpanyName: { $exists: true },
+        }).select('interCommpanyName interTitle interApplicationDeadline internshipApplications');
+        
+        res.status(200).json(internships);
+    } catch (error) {
+        console.error('Error fetching unavailable internship applications:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+
+
+
 module.exports = {
     saveApplication,
     updateApplication,
     saveInternshipApplication,
     updateInternshipApplication,
     getApplicationsByUsername,
-    deleteApplication
+    deleteApplication,
+    getAvailableJobsApplications,
+    getUnavailableJobsApplications,
+    getAvailableInternshipApplications,
+    getUnavailableInternshipApplications,
 };

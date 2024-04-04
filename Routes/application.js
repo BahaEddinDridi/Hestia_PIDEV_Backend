@@ -6,6 +6,8 @@ const ApplicationController = require('../controllers/controller.application');
 router.post('/saveApplication', ApplicationController.saveApplication);
 router.get('/getJobApplicationAvailable', ApplicationController.getAvailableJobsApplications);
 router.get('/getJobApplicationNotAvailable', ApplicationController.getUnavailableJobsApplications);
+router.get('/getIntershipsApplicationAvailable', ApplicationController.getAvailableInternshipApplications);
+router.get('/getIntershipsApplicationNotAvailable', ApplicationController.getUnavailableInternshipApplications);
 
 router.post('/saveInternshipApplication', ApplicationController.saveInternshipApplication);
 
