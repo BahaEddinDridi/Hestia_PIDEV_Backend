@@ -5,10 +5,11 @@ const mongoose = require('mongoose');
 const AddJob = async (req, res) => {
     try {
         const username = req.params.username;
-        const { jobCommpanyName, jobTitle, jobAdress, jobLocation, jobDescription, salary, jobfield, jobStartDate, jobApplicationDeadline, jobRequiredSkills, jobRequiredEducation, jobRequiredExperience, jobOtherInformation, jobPost, jobImage,contactNumber } = req.body;
+        const { jobCompanyId,jobCommpanyName, jobTitle, jobAdress, jobLocation, jobDescription, salary, jobfield, jobStartDate, jobApplicationDeadline, jobRequiredSkills, jobRequiredEducation, jobRequiredExperience, jobOtherInformation, jobPost, jobImage,contactNumber } = req.body;
 
         // Créez d'abord l'instance de Job
         const newJob = new Job({
+            jobCompanyId,
             jobCommpanyName,
             jobTitle,
             jobAdress,
@@ -40,6 +41,7 @@ const AddJob = async (req, res) => {
                 $push: {
                     job: {
                         _id: jobId, // Utilisez le même ID pour référencer l'emploi
+                        jobCompanyId,
                         jobCommpanyName,
                         jobTitle,
                         jobAdress,

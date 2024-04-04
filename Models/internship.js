@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 const Application = require("./Application");
 
 const internshipSchema = new mongoose.Schema({
+    interCompanyId : {
+        type : String,
+    },
     interCommpanyName : {
         type : String,
     },
