@@ -2,6 +2,7 @@ const Application = require('../Models/Application');
 const User = require('../Models/user');
 const Job = require('../Models/job');
 const Intership = require('../Models/internship');
+const createNotification = require('./controller.notification')
 
 const saveApplication = async (req, res) => {
     try {
@@ -35,6 +36,14 @@ const saveApplication = async (req, res) => {
 
 
         await Promise.all([user.save(),job.save()]);
+
+        await createNotification(
+            job.jobCommpanyName,
+            'application',
+            `${user.username} has applied for the ${job.jobTitle} job offer`,
+            job._id,
+            user._id
+        );
         res.status(201).json({ message: 'Application saved successfully' });
     } catch (error) {
         console.error('Error saving application:', error);
@@ -72,6 +81,15 @@ const saveInternshipApplication = async (req, res) => {
         internship.internshipApplications.push(newApplication);
 
         await Promise.all([user.save(), internship.save()]);
+
+        await createNotification(
+            internship.interCommpanyName,
+            'application',
+            `${user.username} has applied for the ${internship.interTitle} job offer`,
+            internship._id,
+            user._id
+        );
+
         res.status(201).json({ message: 'Application for internship saved successfully' });
     } catch (error) {
         console.error('Error saving internship application:', error);
