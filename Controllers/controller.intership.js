@@ -7,10 +7,11 @@ const job = require("../Models/job");
 const AddIntership = async (req, res) => {
     try {
         const username = req.params.username;
-        const { interCommpanyName, interTitle, interType, interAdress, interLocation, interDescription, interPost, interfield, interStartDate, interApplicationDeadline, interRequiredSkills, interRequiredEducation, contactNumber, interOtherInformation, interImage } = req.body;
+        const { interCompanyId ,interCommpanyName, interTitle, interType, interAdress, interLocation, interDescription, interPost, interfield, interStartDate, interApplicationDeadline, interRequiredSkills, interRequiredEducation, contactNumber, interOtherInformation, interImage } = req.body;
 
         // Créez d'abord l'instance de Intership
         const newIntership = new Intership({
+            interCompanyId ,
             interCommpanyName,
             interTitle, 
             interType,
@@ -40,6 +41,7 @@ const AddIntership = async (req, res) => {
             {
                 $push: {
                     intership: {
+                        interCompanyId ,
                         _id: intershipId, // Utilisez le même ID pour référencer l'internat
                         interCommpanyName,
                         interTitle,
@@ -84,7 +86,7 @@ const getInternshipsByRoleAndDeadline = async (req, res) => {
             username: user.username,
             interships: user.intership.filter(intership => intership && intership.interApplicationDeadline && new Date(intership.interApplicationDeadline) < today)
         })).filter(user => user.interships.length > 0);
-        
+
         if (!filteredInternships || filteredInternships.length === 0) {
             return res.status(404).json({ message: 'No users with interships found for the specified role and deadline' });
         }
@@ -114,7 +116,7 @@ const getFutureInternshipsByRole = async (req, res) => {
             }
             return null;
         }).filter(user => user && user.interships.length > 0);
-        
+
         if (!futureInternships || futureInternships.length === 0) {
             return res.status(404).json({ message: 'No users with future interships found for the specified role' });
         }
@@ -154,7 +156,7 @@ const deleteInternshipByIdAndUsername = async (req, res) => {
         await user.save();
 
         // Supprimer l'internship de la collection des internships (Internship)
-        await intership.deleteOne({ _id: internshipIdToDelete });
+        await Intership.deleteOne({ _id: internshipIdToDelete });
 
         res.json({ message: 'Internship deleted successfully' });
     } catch (error) {
@@ -252,6 +254,19 @@ const getInternshipById = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+const getappbyintershipid =async (req,res) =>{
+    try{
+        const intershipid = req.params.intershipid;
+        const intershipfond=await Intership.findById(intershipid);
+        if(!intershipfond){
+            return res.status(404).json({message:'inter offer not found'});
+         }
+         const internshipApplications=intershipfond.internshipApplications;
+         res.json(internshipApplications);
+    }catch (err){
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
 
 module.exports = {
     AddIntership,
@@ -261,5 +276,6 @@ module.exports = {
     getInternshipsByRoleAndDeadline,
     getFutureInternshipsByRole,
     deleteInternshipByIdAndUsername,
-    getInternshipById
+    getInternshipById,
+    getappbyintershipid,
 }

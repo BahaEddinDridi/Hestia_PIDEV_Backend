@@ -4,6 +4,9 @@ const Application = require("./Application");
 
 
 const jobSchema = new mongoose.Schema({
+    jobCompanyId: {
+        type: String,
+    },
     jobCommpanyName: {
         type: String,
     },
