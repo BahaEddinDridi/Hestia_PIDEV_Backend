@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const ApplicationController = require('../controllers/controller.application');
+const ApplicationController =require('../Controllers/controller.application');
 
 // Route to handle resume upload
 router.post('/saveApplication', ApplicationController.saveApplication);
@@ -12,4 +12,6 @@ router.put('/updateInternshipApplication/:applicationId', ApplicationController.
 router.get('/getApplicationsByUsername/:username', ApplicationController.getApplicationsByUsername);
 
 router.delete('/deleteApplication/:applicationId', ApplicationController.deleteApplication);
+router.put('/updatestatus', ApplicationController.updateApplicationStatus);
+router.put('/updatestatusinter', ApplicationController.updatestatuinter);
 module.exports = router;
