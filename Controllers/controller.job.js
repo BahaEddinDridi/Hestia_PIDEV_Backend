@@ -246,7 +246,7 @@ const deleteJobByIdAndUsername = async (req, res) => {
         await user.save();
 
         // Supprimer l'emploi de la collection des emplois (Job)
-        await job.deleteOne({ _id: jobIdToDelete });
+        await Job.deleteOne({ _id: jobIdToDelete });
 
         res.json({ message: 'Job deleted successfully' });
     } catch (error) {
@@ -254,6 +254,7 @@ const deleteJobByIdAndUsername = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+
 
 
 

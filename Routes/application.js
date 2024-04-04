@@ -4,6 +4,11 @@ const ApplicationController = require('../controllers/controller.application');
 
 // Route to handle resume upload
 router.post('/saveApplication', ApplicationController.saveApplication);
+router.get('/getJobApplicationAvailable', ApplicationController.getAvailableJobsApplications);
+router.get('/getJobApplicationNotAvailable', ApplicationController.getUnavailableJobsApplications);
+router.get('/getIntershipsApplicationAvailable', ApplicationController.getAvailableInternshipApplications);
+router.get('/getIntershipsApplicationNotAvailable', ApplicationController.getUnavailableInternshipApplications);
+
 router.post('/saveInternshipApplication', ApplicationController.saveInternshipApplication);
 
 router.put('/updateApplication/:applicationId', ApplicationController.updateApplication);
