@@ -7,10 +7,11 @@ const job = require("../Models/job");
 const AddIntership = async (req, res) => {
     try {
         const username = req.params.username;
-        const { interCommpanyName, interTitle, interType, interAdress, interLocation, interDescription, interPost, interfield, interStartDate, interApplicationDeadline, interRequiredSkills, interRequiredEducation, contactNumber, interOtherInformation, interImage } = req.body;
+        const { interCompanyId ,interCommpanyName, interTitle, interType, interAdress, interLocation, interDescription, interPost, interfield, interStartDate, interApplicationDeadline, interRequiredSkills, interRequiredEducation, contactNumber, interOtherInformation, interImage } = req.body;
 
         // Créez d'abord l'instance de Intership
         const newIntership = new Intership({
+            interCompanyId ,
             interCommpanyName,
             interTitle, 
             interType,
@@ -40,6 +41,7 @@ const AddIntership = async (req, res) => {
             {
                 $push: {
                     intership: {
+                        interCompanyId ,
                         _id: intershipId, // Utilisez le même ID pour référencer l'internat
                         interCommpanyName,
                         interTitle,
@@ -154,7 +156,7 @@ const deleteInternshipByIdAndUsername = async (req, res) => {
         await user.save();
 
         // Supprimer l'internship de la collection des internships (Internship)
-        await intership.deleteOne({ _id: internshipIdToDelete });
+        await Intership.deleteOne({ _id: internshipIdToDelete });
 
         res.json({ message: 'Internship deleted successfully' });
     } catch (error) {

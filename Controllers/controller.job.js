@@ -5,10 +5,11 @@ const mongoose = require('mongoose');
 const AddJob = async (req, res) => {
     try {
         const username = req.params.username;
-        const { jobCommpanyName, jobTitle, jobAdress, jobLocation, jobDescription, salary, jobfield, jobStartDate, jobApplicationDeadline, jobRequiredSkills, jobRequiredEducation, jobRequiredExperience, jobOtherInformation, jobPost, jobImage,contactNumber } = req.body;
+        const { jobCompanyId,jobCommpanyName, jobTitle, jobAdress, jobLocation, jobDescription, salary, jobfield, jobStartDate, jobApplicationDeadline, jobRequiredSkills, jobRequiredEducation, jobRequiredExperience, jobOtherInformation, jobPost, jobImage,contactNumber } = req.body;
 
         // Créez d'abord l'instance de Job
         const newJob = new Job({
+            jobCompanyId,
             jobCommpanyName,
             jobTitle,
             jobAdress,
@@ -40,6 +41,7 @@ const AddJob = async (req, res) => {
                 $push: {
                     job: {
                         _id: jobId, // Utilisez le même ID pour référencer l'emploi
+                        jobCompanyId,
                         jobCommpanyName,
                         jobTitle,
                         jobAdress,
@@ -246,7 +248,7 @@ const deleteJobByIdAndUsername = async (req, res) => {
         await user.save();
 
         // Supprimer l'emploi de la collection des emplois (Job)
-        await job.deleteOne({ _id: jobIdToDelete });
+        await Job.deleteOne({ _id: jobIdToDelete });
 
         res.json({ message: 'Job deleted successfully' });
     } catch (error) {
