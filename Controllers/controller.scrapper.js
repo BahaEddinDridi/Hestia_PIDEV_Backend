@@ -318,6 +318,58 @@ const topSkills = async (req, res) =>{
     res.json(sortedSkills.slice(0, 10));
     return sortedSkills.slice(0, 10);
 }
+const topLocations = async (req, res) =>{
+    const jobDescriptions = JSON.parse(await fs.readFile(path.join(__dirname, '../Data/job_descriptions.json')));
+    const allLocations = jobDescriptions.map(job => job.location);
+    const locationCounts = {};
+    allLocations.forEach(location => {
+        locationCounts[location] = (locationCounts[location] || 0) + 1;
+    });
+
+    const sortedLocations = Object.entries(locationCounts).sort((a, b) => b[1] - a[1]);
+    console.log("Top locations:", sortedLocations.slice(0, 10));
+    res.json(sortedLocations.slice(0, 10));
+    return sortedLocations.slice(0, 10);
+}
+const topEmploymentType = async (req, res) =>{
+    const jobDescriptions = JSON.parse(await fs.readFile(path.join(__dirname, '../Data/job_descriptions.json')));
+    const allEmploymentType = jobDescriptions.map(job => job.employmentType);
+    const employmentTypeCounts = {};
+    allEmploymentType.forEach(employmentType => {
+        employmentTypeCounts[employmentType] = (employmentTypeCounts[employmentType] || 0) + 1;
+    });
+
+    const sortedEmploymentType = Object.entries(employmentTypeCounts).sort((a, b) => b[1] - a[1]);
+    console.log("Top employment types:", sortedEmploymentType.slice(0, 10));
+    res.json(sortedEmploymentType.slice(0, 10));
+    return sortedEmploymentType.slice(0, 10);
+}
+const topSeniorityLevel = async (req, res) =>{
+    const jobDescriptions = JSON.parse(await fs.readFile(path.join(__dirname, '../Data/job_descriptions.json')));
+    const allSeniorityLevel = jobDescriptions.map(job => job.seniorityLevel);
+    const seniorityLevelCounts = {};
+    allSeniorityLevel.forEach(seniorityLevel => {
+        seniorityLevelCounts[seniorityLevel] = (seniorityLevelCounts[seniorityLevel] || 0) + 1;
+    });
+
+    const sortedSeniorityLevel = Object.entries(seniorityLevelCounts).sort((a, b) => b[1] - a[1]);
+    console.log("Top seniority levels:", sortedSeniorityLevel.slice(0, 10));
+    res.json(sortedSeniorityLevel.slice(0, 10));
+    return sortedSeniorityLevel.slice(0, 10);
+}
+const topCompanies = async (req, res) =>{
+    const jobDescriptions = JSON.parse(await fs.readFile(path.join(__dirname, '../Data/job_descriptions.json')));
+    const allCompanies = jobDescriptions.map(job => job.company);
+    const companyCounts = {};
+    allCompanies.forEach(company => {
+        companyCounts[company] = (companyCounts[company] || 0) + 1;
+    });
+    
+    const sortedCompanies = Object.entries(companyCounts).sort((a, b) => b[1] - a[1]);
+    console.log("Top companies:", sortedCompanies.slice(0, 10));
+    res.json(sortedCompanies.slice(0, 10));
+    return sortedCompanies.slice(0, 10);
+}
 const exportPDF = async (req, res) => {
     try {
         const jobDescriptions = JSON.parse(await fs.readFile(path.join(__dirname, '../Data/job_descriptions.json')));
@@ -412,5 +464,9 @@ module.exports = {
     extractSkillsFromJobs,
     topSkills,
     exportPDF,
-    exportExcel
+    exportExcel,
+    topEmploymentType,
+    topCompanies,
+    topSeniorityLevel,
+    topLocations
 };
