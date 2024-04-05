@@ -2,7 +2,7 @@ version: '3.8'
 services:
   app:
     build: .
-    image: backEnd
+    image: backend
     restart: always
     container_name: back
     ports:
