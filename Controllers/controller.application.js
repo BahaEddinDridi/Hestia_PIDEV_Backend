@@ -3,7 +3,8 @@ const Application = require('../Models/Application');
 const User = require('../Models/user');
 const Job = require('../Models/job');
 const Intership = require('../Models/internship');
-const createNotification = require('./controller.notification')
+const { createNotification } = require('./controller.notification');
+
 
 const saveApplication = async (req, res) => {
     try {
@@ -39,7 +40,7 @@ const saveApplication = async (req, res) => {
         await Promise.all([user.save(),job.save()]);
 
         await createNotification(
-            job.jobCommpanyName,
+            job.jobCompanyId,
             'application',
             `${user.username} has applied for the ${job.jobTitle} job offer`,
             job._id,
@@ -84,7 +85,7 @@ const saveInternshipApplication = async (req, res) => {
         await Promise.all([user.save(), internship.save()]);
 
         await createNotification(
-            internship.interCommpanyName,
+            internship.interCompanyId,
             'application',
             `${user.username} has applied for the ${internship.interTitle} job offer`,
             internship._id,

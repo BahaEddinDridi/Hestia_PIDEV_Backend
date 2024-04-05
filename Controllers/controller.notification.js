@@ -30,8 +30,6 @@ const getNotificationsByUserId = async (req, res) => {
 };
 
 module.exports = {
-    getNotificationsByUserId
+    createNotification, // Export createNotification function
+    getNotificationsByUserId // Export getNotificationsByUserId function
 };
-
-
-module.exports = createNotification;

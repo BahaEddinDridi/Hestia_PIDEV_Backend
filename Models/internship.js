@@ -3,7 +3,7 @@ const Application = require("./Application");
 
 const internshipSchema = new mongoose.Schema({
     interCompanyId : {
-        type : String,
+        type: mongoose.Schema.Types.ObjectId,
     },
     interCommpanyName : {
         type : String,
