@@ -10,8 +10,7 @@ pipeline {
         stage('git pull') {
             steps {
                 script {
-                    git branch: 'main', url: 'https://github.com/BahaEddinDridi/Hestia_PIDEV_Backend'
-                    sh 'git pull'
+                    sh 'git pull origin main'
                 }
             }
         }
