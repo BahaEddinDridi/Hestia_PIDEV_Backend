@@ -2,7 +2,7 @@ version: '3.8'
 services:
   app:
     build: .
-    image: 192.168.100.206:8083/nodemongoapp:6.0
+    image: backEnd
     restart: always
     container_name: back
     ports:
