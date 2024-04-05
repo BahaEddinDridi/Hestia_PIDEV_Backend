@@ -7,9 +7,5 @@ services:
     container_name: back
     ports:
       - "5000:5000"
-    depends_on:
-      - db
-    volumes:   # This line was corrected
-      - mongo-data:/path/to/mongo/data
 volumes:
   mongo-data:
