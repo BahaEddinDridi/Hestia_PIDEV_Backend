@@ -15,5 +15,6 @@ router.get('/getInternshipById/:internshipId', controllerIntership.getInternship
 
 
 router.put('/UpdateInternship/:interId', controllerIntership.UpdateInternship);
+router.get('/getapp/:intershipid', controllerIntership.getappbyintershipid);
 
 module.exports = router;

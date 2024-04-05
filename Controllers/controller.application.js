@@ -1,3 +1,4 @@
+const { Types: { ObjectId } } = require('mongoose');
 const Application = require('../Models/Application');
 const User = require('../Models/user');
 const Job = require('../Models/job');
@@ -254,6 +255,136 @@ const deleteApplication = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+const updateApplicationStatus = async (req, res) => {
+    try {
+        const { applicationId, newStatus } = req.body;
+        const application = await Application.findById(applicationId);
+        if (!application) {
+            return res.status(404).json({ error: 'Application not found' });
+        }
+        if (!['Pending', 'Accepted', 'Rejected'].includes(newStatus)) {
+            return res.status(400).json({ error: 'Invalid status' });
+        }
+        application.status = newStatus;
+        await application.save();
+
+        await User.updateOne(
+            { username: application.applicantUsername, 'applications._id': application._id },
+            { $set: { 'applications.$.status': newStatus } }
+        );
+
+        await Job.updateOne(
+            { 'jobApplications._id': application._id },
+            { $set: { 'jobApplications.$.status': newStatus } }
+        );
+       
+
+
+        res.status(200).json({ message: 'Application status updated successfully' });
+    } catch (error) {
+        console.error('Error updating application status:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+const updatestatuinter = async (req, res) => {
+    try {
+        const { applicationId, newStatus } = req.body;
+        const application = await Application.findById(applicationId);
+        if (!application) {
+            return res.status(404).json({ error: 'Application not found' });
+        }
+        if (!['Pending', 'Accepted', 'Rejected'].includes(newStatus)) {
+            return res.status(400).json({ error: 'Invalid status' });
+        }
+        application.status = newStatus;
+        await application.save();
+
+        await User.updateOne(
+            { username: application.applicantUsername, 'applications._id': application._id },
+            { $set: { 'applications.$.status': newStatus } }
+        );
+
+        await Intership.updateOne(
+            { 'internshipApplications._id': application._id },
+            { $set: { 'internshipApplications.$.status': newStatus } }
+        );
+       
+
+
+        res.status(200).json({ message: 'Application status updated successfully' });
+    } catch (error) {
+        console.error('Error updating application status:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+//get jobApplication Available 
+const getAvailableJobsApplications = async (req, res) => {
+    try {
+        const today = new Date();
+        const jobs = await Job.find({
+            jobApplicationDeadline: { $gt: today },
+            jobApplications: { $exists: true, $not: { $size: 0 } },
+            jobCommpanyName: { $exists: true },
+        }).select('jobCommpanyName jobTitle jobApplicationDeadline jobApplications');
+        
+        res.status(200).json(jobs);
+    } catch (error) {
+        console.error('Error fetching available jobs:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+//get jobApplication Not Available
+const getUnavailableJobsApplications = async (req, res) => {
+    try {
+        const today = new Date();
+        const jobs = await Job.find({
+            jobApplicationDeadline: { $lt: today },
+            jobApplications: { $exists: true, $not: { $size: 0 } },
+            jobCommpanyName: { $exists: true },
+        }).select('jobCommpanyName jobTitle jobApplicationDeadline jobApplications');
+        
+        res.status(200).json(jobs);
+    } catch (error) {
+        console.error('Error fetching unavailable jobs:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+// get IntershipApplication available 
+const getAvailableInternshipApplications = async (req, res) => {
+    try {
+        const today = new Date();
+        const internships = await Intership.find({
+            interApplicationDeadline: { $gt: today },
+            internshipApplications: { $exists: true, $not: { $size: 0 } },
+            interCommpanyName: { $exists: true },
+        }).select('interCommpanyName interTitle interApplicationDeadline internshipApplications');
+        
+        res.status(200).json(internships);
+    } catch (error) {
+        console.error('Error fetching available internship applications:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+//get IntershipApplication Not available 
+const getUnavailableInternshipApplications = async (req, res) => {
+    try {
+        const today = new Date();
+        const internships = await Intership.find({
+            interApplicationDeadline: { $lt: today },
+            internshipApplications: { $exists: true, $not: { $size: 0 } },
+            interCommpanyName: { $exists: true },
+        }).select('interCommpanyName interTitle interApplicationDeadline internshipApplications');
+        
+        res.status(200).json(internships);
+    } catch (error) {
+        console.error('Error fetching unavailable internship applications:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+
+
 
 module.exports = {
     saveApplication,
@@ -261,5 +392,11 @@ module.exports = {
     saveInternshipApplication,
     updateInternshipApplication,
     getApplicationsByUsername,
-    deleteApplication
+    deleteApplication,
+    updateApplicationStatus,
+    updatestatuinter,
+    getAvailableJobsApplications,
+    getUnavailableJobsApplications,
+    getAvailableInternshipApplications,
+    getUnavailableInternshipApplications,
 };
