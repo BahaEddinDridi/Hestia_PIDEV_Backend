@@ -3,15 +3,14 @@ pipeline {
 
     environment {
         registryCredentials = "nexus"
-        registry = "192.168.100.206:8083"
+        registry = "192.168.1.197:8083"
     }
     
     stages {
         stage('git pull') {
             steps {
                 script {
-                    git branch: 'main', url: 'https://github.com/BahaEddinDridi/Hestia_PIDEV_Backend'
-                    sh 'git pull'
+                    sh 'git pull origin main'
                 }
             }
         }
