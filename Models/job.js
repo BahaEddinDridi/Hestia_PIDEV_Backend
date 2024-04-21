@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const Application = require("./Application");
 const skills = require("../skill/skills.json")
-// Convertir le tableau de compétences en une liste de chaînes
 const skillsList = skills.skills.map(skill => skill);
 
 const jobSchema = new mongoose.Schema({
