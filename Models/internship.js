@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 const Application = require("./Application");
+const skills = require("../skill/skills.json")
+// Convertir le tableau de compétences en une liste de chaînes
+const skillsList = skills.skills.map(skill => skill);
 
 const internshipSchema = new mongoose.Schema({
     interCompanyId : {
@@ -35,7 +38,8 @@ const internshipSchema = new mongoose.Schema({
         type: Date,
     },
     interRequiredSkills: {
-        type: String,
+        type: [String],
+        enum: skillsList,
     },
     interRequiredEducation: {
         type: String,
