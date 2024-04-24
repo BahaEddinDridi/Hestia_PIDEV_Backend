@@ -1,5 +1,7 @@
 require('dotenv').config();
 const express = require('express');
+const { createServer } = require("http");
+const { Server } = require("socket.io");
 const cookieParser = require('cookie-parser');
 const userRoutes = require('./Routes/user');
 const authRoutes = require('./Routes/auth');
@@ -22,8 +24,16 @@ const notificationRoute = require('./Routes/notification')
 const CRMRoutes = require('./Routes/CRM')
 const ScrapingRoutes = require('./Routes/Scraping')
 const gptchatbotRoute = require('./Routes/gptchatbot')
+const sendNotification = require('./Middlewares/notificationSender');
 
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, { cors: {
+        origin: 'http://localhost:5173',
+        methods: ["GET", "POST"],
+        credentials: true
+    } });
+
 app.use(cookieParser());
 
 app.use(logger);
@@ -55,6 +65,16 @@ app.use('/Scraping', ScrapingRoutes);app.use('/gptchatbot' , gptchatbotRoute);
 
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+app.get('/send-notification', async (req, res) => {
+    await sendNotification(); // Call the sendNotification function
+    res.send('Notification sent');
 });
+io.on('connect', () => {
+    console.log('Connected to Socket.IO server');
+});
+
+io.on('disconnect', () => {
+    console.log('Disconnected from Socket.IO server');
+});
+
+httpServer.listen(PORT);
