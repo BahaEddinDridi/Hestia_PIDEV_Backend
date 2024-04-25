@@ -201,6 +201,26 @@ const getUserById = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 }
+const getUsersByUserId = async (req, res) => {
+    const userId = req.params.userId; // Récupérez l'ID de l'utilisateur depuis les paramètres de la requête
+    try {
+        // Recherchez tous les utilisateurs dont l'ID n'est pas égal à l'ID spécifié
+        const users = await User.find({ _id: { $ne: userId } });
+
+        // Vérifiez si des utilisateurs ont été trouvés
+        if (!users || users.length === 0) {
+            return res.status(404).json({ error: 'No users found' });
+        }
+
+        // Renvoyez les détails des utilisateurs trouvés
+        res.status(200).json(users);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+
+
 
 module.exports = {
     registerUser,
@@ -211,4 +231,5 @@ module.exports = {
     deactivatedaccount,
     getimagbyapp,
     getUserById,
+    getUsersByUserId,
 };

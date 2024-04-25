@@ -28,5 +28,31 @@ router.get("/:userId" , async (req,res) => {
     }
 })
 
+//get conversation includes 2 users id
+router.get("/find/:firstUserId/:secondUserId", async (req,res)=>{
+    try{
+        const firstUserId = req.params.firstUserId;
+        const secondUserId = req.params.secondUserId;
+
+        // Recherchez une conversation existante entre les deux utilisateurs
+        let conversation = await Conversation.findOne({
+            members: { $all : [firstUserId, secondUserId] }
+        });
+
+        // Si aucune conversation n'est trouvée, créez une nouvelle conversation
+        if (!conversation) {
+            const newConversation = new Conversation({
+                members: [firstUserId, secondUserId]
+            });
+            conversation = await newConversation.save();
+        }
+
+        res.status(200).json(conversation);
+    } catch(err){
+        res.status(500).json(err);
+    }
+});
+
+
 
 module.exports = router;
