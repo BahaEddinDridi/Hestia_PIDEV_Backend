@@ -19,4 +19,5 @@ router.get('/getApplicationsByUsername/:username', ApplicationController.getAppl
 router.delete('/deleteApplication/:applicationId', ApplicationController.deleteApplication);
 router.put('/updatestatus', ApplicationController.updateApplicationStatus);
 router.put('/updatestatusinter', ApplicationController.updatestatuinter);
+router.get('/calendrie/event', ApplicationController.calendar);
 module.exports = router;
