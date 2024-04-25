@@ -22,7 +22,7 @@ const notificationRoute = require('./Routes/notification')
 const CRMRoutes = require('./Routes/CRM')
 const ScrapingRoutes = require('./Routes/Scraping')
 const gptchatbotRoute = require('./Routes/gptchatbot')
-
+const ProfileUpdater = require('./Routes/ProfileUpdater');
 const app = express();
 app.use(cookieParser());
 
@@ -52,6 +52,7 @@ app.use('/application' , applicationRoute);
 app.use('/notifications' , notificationRoute);
 app.use('/CRM', CRMRoutes);
 app.use('/Scraping', ScrapingRoutes);app.use('/gptchatbot' , gptchatbotRoute);
+app.use('/ProfileUpdater', ProfileUpdater);
 
 
 const PORT = process.env.PORT || 3001;
