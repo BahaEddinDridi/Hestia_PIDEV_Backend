@@ -19,11 +19,17 @@ const jobRoute=require('./Routes/job')
 const intershipRoute=require('./Routes/intership')
 const applicationRoute = require('./Routes/application')
 const notificationRoute = require('./Routes/notification')
+
 const CRMRoutes = require('./Routes/CRM')
 const ScrapingRoutes = require('./Routes/Scraping')
 const gptchatbotRoute = require('./Routes/gptchatbot')
+const Ably = require('ably');
+const axios = require('axios');
+
 
 const app = express();
+
+
 app.use(cookieParser());
 
 app.use(logger);
@@ -50,9 +56,29 @@ app.use('/job' , jobRoute);
 app.use('/intership' ,intershipRoute);
 app.use('/application' , applicationRoute);
 app.use('/notifications' , notificationRoute);
+
 app.use('/CRM', CRMRoutes);
 app.use('/Scraping', ScrapingRoutes);app.use('/gptchatbot' , gptchatbotRoute);
 
+const CALENDARIFIC_API_KEY = 'yOmWJv9HZVrQP1BFnqMHLgTWNoVOjLwT';
+
+app.get('/api/holidays', async (req, res) => {
+  const country = 'TN'; 
+  const year = new Date().getFullYear(); 
+  try {
+    const response = await axios.get('https://calendarific.com/api/v2/holidays', {
+      params: {
+        api_key: CALENDARIFIC_API_KEY,
+        country,
+        year
+      }
+    });
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching holidays:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

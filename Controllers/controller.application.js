@@ -4,6 +4,7 @@ const User = require('../Models/user');
 const Job = require('../Models/job');
 const Intership = require('../Models/internship');
 const { createNotification } = require('./controller.notification');
+const axios = require('axios');
 
 
 const saveApplication = async (req, res) => {
@@ -276,7 +277,7 @@ const deleteApplication = async (req, res) => {
 };
 const updateApplicationStatus = async (req, res) => {
     try {
-        const { applicationId, newStatus } = req.body;
+        const { applicationId, newStatus ,DateInterview} = req.body;
         const application = await Application.findById(applicationId);
         if (!application) {
             return res.status(404).json({ error: 'Application not found' });
@@ -286,15 +287,24 @@ const updateApplicationStatus = async (req, res) => {
         }
         application.status = newStatus;
         await application.save();
-
+        if (newStatus === 'Accepted') {
+            
+            application.interviewDate = DateInterview;
+            await application.save();
+          }else if (newStatus === 'Rejected') {
+            application.interviewDate = null;
+            await application.save();
+        }
         await User.updateOne(
             { username: application.applicantUsername, 'applications._id': application._id },
-            { $set: { 'applications.$.status': newStatus } }
+            { $set: { 'applications.$.status': newStatus , 'applications.$.interviewDate':application.interviewDate } },
+            
         );
 
         await Job.updateOne(
             { 'jobApplications._id': application._id },
             { $set: { 'jobApplications.$.status': newStatus } }
+            
         );
        
 
@@ -307,7 +317,7 @@ const updateApplicationStatus = async (req, res) => {
 };
 const updatestatuinter = async (req, res) => {
     try {
-        const { applicationId, newStatus } = req.body;
+        const { applicationId, newStatus,DateInterview } = req.body;
         const application = await Application.findById(applicationId);
         if (!application) {
             return res.status(404).json({ error: 'Application not found' });
@@ -317,7 +327,11 @@ const updatestatuinter = async (req, res) => {
         }
         application.status = newStatus;
         await application.save();
-
+        if (newStatus === 'Accepted') {
+            
+            application.interviewDate = DateInterview;
+            await application.save();
+          }
         await User.updateOne(
             { username: application.applicantUsername, 'applications._id': application._id },
             { $set: { 'applications.$.status': newStatus } }
@@ -401,7 +415,54 @@ const getUnavailableInternshipApplications = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+const CALENDARIFIC_API_KEY = 'yOmWJv9HZVrQP1BFnqMHLgTWNoVOjLwT';
+const calendar = async (req, res) => {
+    try {
+       // const { username } = req.query; 
+        //const applications = await Application.find({ applicantUsername: username });
+        const { username, companyName } = req.query;
+        let query = {};
+    
+        if (username) {
+          query = { applicantUsername: username };
+        } else if (companyName) {
+          query = { companyName };
+        } else {
+          return res.status(400).json({ error: 'Missing username or companyName parameter' });
+        }
+        const applications = await Application.find(query);
+        const response = await axios.get('https://calendarific.com/api/v2/holidays', {
+      params: {
+        api_key: CALENDARIFIC_API_KEY,
+        country: 'TN',
+        year: new Date().getFullYear()
+      }
+    });
+    const holidays = response.data.response.holidays;
+    const events = [];
+    holidays.forEach(holiday => {
+        events.push({
+          title: holiday.name,
+          start: holiday.date.iso,
+          rendering: 'background'
+        });
+      });
+      applications.forEach(application => {
+        if (application.interviewDate) {
+          events.push({
+            title: 'Entretien',
+            start: application.interviewDate.toISOString() // Supposons que interviewDate est un objet Date
+          });
+        }
+      });
+  
+      res.json(events);
 
+    }catch (error){
+        console.error('Error fetching events:', error);
+        res.status(500).json({ error: `Internal server error: ${error.message}` });
+    }
+}
 
 
 
@@ -418,4 +479,5 @@ module.exports = {
     getUnavailableJobsApplications,
     getAvailableInternshipApplications,
     getUnavailableInternshipApplications,
+    calendar
 };

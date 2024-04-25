@@ -42,4 +42,5 @@ router.get('/educations/:username',educationController.getAllEducations);
 router.delete('/deleteproject/:username/:projectId',projectcontroller.Deleteproject);
 router.get('/projects/:username',projectcontroller.getAllproject);
 router.put('/updateproject/:username/:projectId',projectcontroller.Updateproject);
+router.get('/users',userController.getAllUsers);
 module.exports = router;
