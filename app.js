@@ -24,7 +24,7 @@ const notificationRoute = require('./Routes/notification')
 const CRMRoutes = require('./Routes/CRM')
 const ScrapingRoutes = require('./Routes/Scraping')
 const gptchatbotRoute = require('./Routes/gptchatbot')
-const sendNotification = require('./Middlewares/notificationSender');
+
 
 const app = express();
 const httpServer = createServer(app);
@@ -65,10 +65,10 @@ app.use('/Scraping', ScrapingRoutes);app.use('/gptchatbot' , gptchatbotRoute);
 
 
 const PORT = process.env.PORT || 3001;
-app.get('/send-notification', async (req, res) => {
-    await sendNotification(); // Call the sendNotification function
-    res.send('Notification sent');
-});
+//app.get('/send-notification', async (req, res) => {
+//    await sendNotification(); // Call the sendNotification function
+//    res.send('Notification sent');
+//});
 io.on('connect', () => {
     console.log('Connected to Socket.IO server');
 });

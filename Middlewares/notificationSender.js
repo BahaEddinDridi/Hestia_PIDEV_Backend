@@ -27,4 +27,4 @@ async function sendNotification() {
     }
 }
 
-module.exports = sendNotification;
+module.exports = {sendNotification};
