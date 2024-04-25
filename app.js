@@ -9,8 +9,8 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const cors = require('cors');
-const { logger } = require('./Middlewares/logger')
-const { contains } = require("validator");
+const {logger} = require('./Middlewares/logger')
+const {contains} = require("validator");
 const connectDB = require('./Config/db');
 const dashboardRoute = require('./Routes/dashboard')
 const passport = require('passport')
@@ -108,7 +108,7 @@ io.on("connection", (socket) => {
         }
     });
 
-    
+
 
     //when diconnect
     socket.on("disconnect", () => {

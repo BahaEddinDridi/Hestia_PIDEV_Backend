@@ -5,7 +5,12 @@ const Job = require('../Models/job');
 const Intership = require('../Models/internship');
 const { createNotification } = require('./controller.notification');
 
+const notificationapi = require('notificationapi-node-server-sdk').default;
 
+notificationapi.init(
+    '14eadjhddt7i0ln1o5pas0tvca',
+    '14qn0jegih2qq32g7o05l4dpvep5j72gr0ca0bvldvh9351l4itt'
+);
 const saveApplication = async (req, res) => {
     try {
         const { fullName, email, phoneNumber,applicantUsername, motivationLetter, resume,companyName,companyLogo,jobTitle, userId, jobId } = req.body;
@@ -38,14 +43,31 @@ const saveApplication = async (req, res) => {
 
 
         await Promise.all([user.save(),job.save()]);
-
+        const company = await User.findById(job.jobCompanyId);
         await createNotification(
             job.jobCompanyId,
-            'application',
+            'job_application',
             `${user.username} has applied for the ${job.jobTitle} job offer`,
             job._id,
             user._id
         );
+        await notificationapi.send({
+            notificationId: 'new_job_application',
+            user: {
+                id: company.email,
+                email: company.email,
+                number: company.phoneNumber
+            },
+            mergeTags: {
+                "job_title": jobTitle,
+                "company_name": companyName,
+                "applicant_name": fullName,
+                "applicant_email": email,
+                "applicant_phoneNumber": phoneNumber,
+                "applicant_resume": resume
+            }
+        })
+
         res.status(201).json({ message: 'Application saved successfully' });
     } catch (error) {
         console.error('Error saving application:', error);
@@ -86,7 +108,7 @@ const saveInternshipApplication = async (req, res) => {
 
         await createNotification(
             internship.interCompanyId,
-            'application',
+            'internship_application',
             `${user.username} has applied for the ${internship.interTitle} job offer`,
             internship._id,
             user._id
@@ -286,19 +308,37 @@ const updateApplicationStatus = async (req, res) => {
         }
         application.status = newStatus;
         await application.save();
+        const user = await User.findOne({ username: application.applicantUsername });
 
+        await createNotification(
+            user._id,
+            'status',
+            `Your application for the ${application.jobTitle} job offer has been ${newStatus.toLowerCase()}.`, // message
+            application.jobId,
+            user._id
+        );
+        await notificationapi.send({
+            notificationId: 'application_status_update',
+            user: {
+                id: user.email,
+                email: user.email,
+                number: user.phoneNumber
+            },
+            mergeTags: {
+                "job_title": application.jobTitle,
+                "fullname": user.firstName ,
+                "company_name": application.companyName,
+                "decision": newStatus
+            }
+        })
         await User.updateOne(
             { username: application.applicantUsername, 'applications._id': application._id },
             { $set: { 'applications.$.status': newStatus } }
         );
-
         await Job.updateOne(
             { 'jobApplications._id': application._id },
             { $set: { 'jobApplications.$.status': newStatus } }
         );
-       
-
-
         res.status(200).json({ message: 'Application status updated successfully' });
     } catch (error) {
         console.error('Error updating application status:', error);
@@ -318,6 +358,14 @@ const updatestatuinter = async (req, res) => {
         application.status = newStatus;
         await application.save();
 
+        const user = await User.findOne({ username: application.applicantUsername });
+        await createNotification(
+            user._id,
+            'status',
+            `Your application for the ${application.jobTitle} internship offer has been ${newStatus.toLowerCase()}.`, // message
+            application.jobId,
+            user._id
+        );
         await User.updateOne(
             { username: application.applicantUsername, 'applications._id': application._id },
             { $set: { 'applications.$.status': newStatus } }
