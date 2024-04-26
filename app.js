@@ -61,7 +61,7 @@ app.use('/message', Message);
 
 
 
-////////////////// Socket IO //////////////////
+////////////////// Socket IO ////////////////////////
 const httpServer = require("http").createServer(app); // Créez un serveur HTTP à partir de l'application Express
 
 const io = require("socket.io")(httpServer, {
