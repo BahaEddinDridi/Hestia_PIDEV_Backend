@@ -55,7 +55,6 @@ async function GetUserJSON(id) {
             project: users.project,
         };
        
-        
         return UserData;
     } catch (error) {
         console.error(error);
@@ -68,11 +67,14 @@ const CompareUserDataAndCV = async (req, res) => {
         const { id } = req.params;
         const cv= req.file;
         const cvText = await extractPDFText(cv);
+        console.log('extracted cv text')
         
         
         const UserInformation = await GetUser(id);
+        console.log('got user information')
         // Call chatbot to compare user data and CV text
         const updatedUserData = await processCVAndUserData(cvText,UserInformation, id);
+        console.log('got updated user data')
         
 
 
@@ -91,7 +93,7 @@ async function processCVAndUserData(cvText,UserInformation, userId) {
         const messages = [
             { role: "user", content: cvText }, // CV text (as a string)
             { role: "user", content: UserInformation }, // User data (as a JSON string)
-            { role: "system", content: "Compare the resume and user data and return in the user data what is missing from the user resume  only in a json format and no confimation message is needed only the json format is demanded,in a code format,not text at the end neather only json and only add the email ,phone number,expirience ,education,skill and project add them to the already given user data and do not write missingData just give it directly Combine the resume and user data, and return only the missing information from the resume in the user data. Return the result in JSON format without any confirmation message. Add the missing email, phone number, experience, education, skills, and project directly to the user data and only write the date in the jsonformat DATE YYYY-MM-DDTHH:mm:ss.sssZ." } // System message
+            { role: "system", content: "Compare the resume and user data and return in the user data what is missing from the user resume  only in a json format and no confirmation message is needed only the json format is demanded,in a code format,not text at the end neather only json and only add the email ,phone number,expirience ,education,skill and project add them to the already given user data and do not write missingData just give it directly Combine the resume and user data, and return only the missing information from the resume in the user data. Return the result in JSON format without any confirmation message. Add the missing email, phone number, experience, education, skills, and project directly to the user data and only write the date in the jsonformat DATE YYYY-MM-DDTHH:mm:ss.sssZ." } // System message
         ];
 
         // Call the chatbot to get completions
@@ -108,17 +110,20 @@ async function processCVAndUserData(cvText,UserInformation, userId) {
         // Extract the response content
         const jsonResponse = completions.choices[0]?.message?.content || "";
         const jsonStartIndex = jsonResponse.indexOf('{'); // Find the start index of the JSON
+        if (jsonStartIndex === -1) {
+            throw new Error('JSON data not found in the response');
+        }
         const jsonOutput = jsonResponse.substring(jsonStartIndex); // Extract the JSON part
-
+        
         // Parse the JSON output
         const parsedJsonOutput = JSON.parse(jsonOutput);
-        console.log(parsedJsonOutput);
+        console.log('parsed json output with the missing data')
 
         const mergedUserData = mergeUserData(GetUserJSON(userId), parsedJsonOutput);
-
+        console.log('merged user data in function')
          // Update user data in the database
         await updateUserInDatabase(userId, mergedUserData);
-
+        
         // Return the merged user data
         return mergedUserData;
     } catch (error) {
@@ -129,16 +134,17 @@ async function processCVAndUserData(cvText,UserInformation, userId) {
 
 function mergeUserData(existingUserData, additionalData) {
     const mergedUserData = { ...existingUserData };
-
+    console.log(mergedUserData?.email);
+    console.log(additionalData?.email);
     // Add missing fields from the additional data
     if (additionalData.email && typeof additionalData.email === 'string') {
-        mergedUserData.email = additionalData.email;
+        mergedUserData.email = additionalData.email+mergedUserData.email; ;
     }
     if (additionalData.phoneNumber && typeof additionalData.phoneNumber === 'string') {
-        mergedUserData.phoneNumber = additionalData.phoneNumber;
+        mergedUserData.phoneNumber = additionalData.phoneNumber+mergedUserData.phoneNumber;
     }
     if (additionalData.experience && Array.isArray(additionalData.experience)) {
-        mergedUserData.experience = additionalData.experience;
+        mergedUserData.experience = additionalData.experience+mergedUserData.experience;
     }
     if (Array.isArray(additionalData.education)) {
         // Check each educational experience in additionalData
@@ -151,12 +157,12 @@ function mergeUserData(existingUserData, additionalData) {
         });
     }
     if (additionalData.skills && Array.isArray(additionalData.skills)) {
-        mergedUserData.skills = additionalData.skills;
+        mergedUserData.skills = additionalData.skills+mergedUserData.skills;
     }
     if (additionalData.project && Array.isArray(additionalData.project)) {
-        mergedUserData.project = additionalData.project;
+        mergedUserData.project = additionalData.project+mergedUserData.project ;
     }
-
+    
     return mergedUserData;
 }
 
@@ -164,9 +170,17 @@ function mergeUserData(existingUserData, additionalData) {
 async function updateUserInDatabase(userId, userData) {
     try {
         // Update user data in the database
-        await user.findByIdAndUpdate(userId, {
-            $set: userData
-        });
+        const updatedUser= await user.findById(userId);
+        updatedUser.email = userData.email;
+        updatedUser.phoneNumber = userData.phoneNumber;
+        updatedUser.experience = userData.experience;
+        updatedUser.education = userData.education;
+        updatedUser.skills = userData.skills;
+        updatedUser.project = userData.project;
+        
+         await updatedUser.save();
+        console.log('User data updated successfully');
+
     } catch (error) {
         console.error(error);
         throw new Error('Error updating user data in the database');

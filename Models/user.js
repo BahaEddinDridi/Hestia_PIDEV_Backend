@@ -136,6 +136,7 @@ const userSchema = new mongoose.Schema({
     project:[Project.schema],
     job:[Job.schema],
     intership:[Intership.schema],
+    skills: [String],
 });
 
 userSchema.methods.isValidPassword = async function (password) {

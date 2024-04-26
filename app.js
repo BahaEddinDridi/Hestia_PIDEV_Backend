@@ -23,6 +23,7 @@ const CRMRoutes = require('./Routes/CRM')
 const ScrapingRoutes = require('./Routes/Scraping')
 const gptchatbotRoute = require('./Routes/gptchatbot')
 const ProfileUpdater = require('./Routes/ProfileUpdater');
+const recommendationRoute = require('./Routes/recommendation');
 const app = express();
 app.use(cookieParser());
 
@@ -53,6 +54,8 @@ app.use('/notifications' , notificationRoute);
 app.use('/CRM', CRMRoutes);
 app.use('/Scraping', ScrapingRoutes);app.use('/gptchatbot' , gptchatbotRoute);
 app.use('/ProfileUpdater', ProfileUpdater);
+app.use('/recommendation', recommendationRoute);
+
 
 
 const PORT = process.env.PORT || 3001;
