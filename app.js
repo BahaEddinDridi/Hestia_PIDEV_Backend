@@ -58,6 +58,11 @@ app.use('/job', jobRoute);
 app.use('/intership', intershipRoute);
 app.use('/application', applicationRoute);
 app.use('/notifications', notificationRoute);
+app.use('/application', applicationRoute);
+app.use('/notifications', notificationRoute);
+app.use('/conversation', Conversation);
+app.use('/message', Message);
+
 
 app.use('/CRM', CRMRoutes);
 app.use('/Scraping', ScrapingRoutes);app.use('/gptchatbot' , gptchatbotRoute);
