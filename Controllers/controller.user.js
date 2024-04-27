@@ -204,8 +204,8 @@ const getUserById = async (req, res) => {
 const getUsersByUserId = async (req, res) => {
     const userId = req.params.userId; // Récupérez l'ID de l'utilisateur depuis les paramètres de la requête
     try {
-        // Recherchez tous les utilisateurs dont l'ID n'est pas égal à l'ID spécifié
-        const users = await User.find({ _id: { $ne: userId } });
+        // Recherchez tous les utilisateurs dont l'ID n'est pas égal à l'ID spécifié et qui n'ont pas le rôle "admin"
+        const users = await User.find({ _id: { $ne: userId }, role: { $ne: 'admin' } });
 
         // Vérifiez si des utilisateurs ont été trouvés
         if (!users || users.length === 0) {
@@ -219,6 +219,7 @@ const getUsersByUserId = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
+
 
 
 
