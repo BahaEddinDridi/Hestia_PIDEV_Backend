@@ -49,7 +49,7 @@ const registerUser = async (req, res) => {
 const updateprofile = async(req,res) =>{
     try{
       
-        const{firstName,lastName,birthDate,username,email,location,phoneNumber,title,accountVisibility}=req.body;
+        const{firstName,lastName,birthDate,username,email,location,phoneNumber,title,accountVisibility,skills}=req.body;
         const userToUpdate = await User.findOne({ username: req.params.username });
         if (!userToUpdate) {
             return res.status(404).json({ error: 'User not found' });
@@ -63,6 +63,9 @@ const updateprofile = async(req,res) =>{
         userToUpdate.phoneNumber=phoneNumber;
         userToUpdate.accountVisibility=accountVisibility;
         userToUpdate.title=title;
+        if (skills) {
+            userToUpdate.skills = skills;
+          }
         await userToUpdate.save();
         res.json({message: 'Profile updated successfully',userToUpdate});
         
@@ -223,6 +226,14 @@ const getUsersByUserId = async (req, res) => {
 
 
 
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find(); 
+        res.json(users); 
+    } catch (err) {
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
 module.exports = {
     registerUser,
     updateprofile,
@@ -233,4 +244,5 @@ module.exports = {
     getimagbyapp,
     getUserById,
     getUsersByUserId,
+    getAllUsers
 };

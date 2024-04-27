@@ -4,8 +4,14 @@ const User = require('../Models/user');
 const Job = require('../Models/job');
 const Intership = require('../Models/internship');
 const { createNotification } = require('./controller.notification');
+const axios = require('axios');
 
+const notificationapi = require('notificationapi-node-server-sdk').default;
 
+notificationapi.init(
+    '14eadjhddt7i0ln1o5pas0tvca',
+    '14qn0jegih2qq32g7o05l4dpvep5j72gr0ca0bvldvh9351l4itt'
+);
 const saveApplication = async (req, res) => {
     try {
         const { fullName, email, phoneNumber,applicantUsername, motivationLetter, resume,companyName,companyLogo,jobTitle, userId, jobId } = req.body;
@@ -38,14 +44,31 @@ const saveApplication = async (req, res) => {
 
 
         await Promise.all([user.save(),job.save()]);
-
+        const company = await User.findById(job.jobCompanyId);
         await createNotification(
             job.jobCompanyId,
-            'application',
+            'job_application',
             `${user.username} has applied for the ${job.jobTitle} job offer`,
             job._id,
             user._id
         );
+        await notificationapi.send({
+            notificationId: 'new_job_application',
+            user: {
+                id: company.email,
+                email: company.email,
+                number: company.phoneNumber
+            },
+            mergeTags: {
+                "job_title": jobTitle,
+                "company_name": companyName,
+                "applicant_name": fullName,
+                "applicant_email": email,
+                "applicant_phoneNumber": phoneNumber,
+                "applicant_resume": resume
+            }
+        })
+
         res.status(201).json({ message: 'Application saved successfully' });
     } catch (error) {
         console.error('Error saving application:', error);
@@ -86,7 +109,7 @@ const saveInternshipApplication = async (req, res) => {
 
         await createNotification(
             internship.interCompanyId,
-            'application',
+            'internship_application',
             `${user.username} has applied for the ${internship.interTitle} job offer`,
             internship._id,
             user._id
@@ -276,7 +299,7 @@ const deleteApplication = async (req, res) => {
 };
 const updateApplicationStatus = async (req, res) => {
     try {
-        const { applicationId, newStatus } = req.body;
+        const { applicationId, newStatus ,DateInterview} = req.body;
         const application = await Application.findById(applicationId);
         if (!application) {
             return res.status(404).json({ error: 'Application not found' });
@@ -286,19 +309,47 @@ const updateApplicationStatus = async (req, res) => {
         }
         application.status = newStatus;
         await application.save();
+        const user = await User.findOne({ username: application.applicantUsername });
 
+        await createNotification(
+            user._id,
+            'status',
+            `Your application for the ${application.jobTitle} job offer has been ${newStatus.toLowerCase()}.`, // message
+            application.jobId,
+            user._id
+        );
+        await notificationapi.send({
+            notificationId: 'application_status_update',
+            user: {
+                id: user.email,
+                email: user.email,
+                number: user.phoneNumber
+            },
+            mergeTags: {
+                "job_title": application.jobTitle,
+                "fullname": user.firstName ,
+                "company_name": application.companyName,
+                "decision": newStatus
+            }
+        }) ;
+         if (newStatus === 'Accepted') {
+            
+            application.interviewDate = DateInterview;
+            await application.save();
+          }else if (newStatus === 'Rejected') {
+            application.interviewDate = null;
+            await application.save();
+        }
         await User.updateOne(
             { username: application.applicantUsername, 'applications._id': application._id },
-            { $set: { 'applications.$.status': newStatus } }
+            { $set: { 'applications.$.status': newStatus , 'applications.$.interviewDate':application.interviewDate } },
+            
         );
-
         await Job.updateOne(
             { 'jobApplications._id': application._id },
             { $set: { 'jobApplications.$.status': newStatus } }
+            
         );
-       
-
-
         res.status(200).json({ message: 'Application status updated successfully' });
     } catch (error) {
         console.error('Error updating application status:', error);
@@ -307,7 +358,7 @@ const updateApplicationStatus = async (req, res) => {
 };
 const updatestatuinter = async (req, res) => {
     try {
-        const { applicationId, newStatus } = req.body;
+        const { applicationId, newStatus,DateInterview } = req.body;
         const application = await Application.findById(applicationId);
         if (!application) {
             return res.status(404).json({ error: 'Application not found' });
@@ -317,7 +368,19 @@ const updatestatuinter = async (req, res) => {
         }
         application.status = newStatus;
         await application.save();
-
+        if (newStatus === 'Accepted') {
+            
+        const user = await User.findOne({ username: application.applicantUsername });
+        await createNotification(
+            user._id,
+            'status',
+            `Your application for the ${application.jobTitle} internship offer has been ${newStatus.toLowerCase()}.`, // message
+            application.jobId,
+            user._id
+        );
+            application.interviewDate = DateInterview;
+            await application.save();
+          }
         await User.updateOne(
             { username: application.applicantUsername, 'applications._id': application._id },
             { $set: { 'applications.$.status': newStatus } }
@@ -401,7 +464,54 @@ const getUnavailableInternshipApplications = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+const CALENDARIFIC_API_KEY = 'yOmWJv9HZVrQP1BFnqMHLgTWNoVOjLwT';
+const calendar = async (req, res) => {
+    try {
+       // const { username } = req.query; 
+        //const applications = await Application.find({ applicantUsername: username });
+        const { username, companyName } = req.query;
+        let query = {};
+    
+        if (username) {
+          query = { applicantUsername: username };
+        } else if (companyName) {
+          query = { companyName };
+        } else {
+          return res.status(400).json({ error: 'Missing username or companyName parameter' });
+        }
+        const applications = await Application.find(query);
+        const response = await axios.get('https://calendarific.com/api/v2/holidays', {
+      params: {
+        api_key: CALENDARIFIC_API_KEY,
+        country: 'TN',
+        year: new Date().getFullYear()
+      }
+    });
+    const holidays = response.data.response.holidays;
+    const events = [];
+    holidays.forEach(holiday => {
+        events.push({
+          title: holiday.name,
+          start: holiday.date.iso,
+          rendering: 'background'
+        });
+      });
+      applications.forEach(application => {
+        if (application.interviewDate) {
+          events.push({
+            title: 'Entretien',
+            start: application.interviewDate.toISOString() // Supposons que interviewDate est un objet Date
+          });
+        }
+      });
+  
+      res.json(events);
 
+    }catch (error){
+        console.error('Error fetching events:', error);
+        res.status(500).json({ error: `Internal server error: ${error.message}` });
+    }
+}
 
 
 
@@ -418,4 +528,5 @@ module.exports = {
     getUnavailableJobsApplications,
     getAvailableInternshipApplications,
     getUnavailableInternshipApplications,
+    calendar
 };
