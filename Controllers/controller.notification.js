@@ -29,7 +29,22 @@ const getNotificationsByUserId = async (req, res) => {
     }
 };
 
+const markNotificationsAsRead = async (req, res) => {
+    try {
+        const { notificationIds } = req.body;
+        await Notification.updateMany(
+            { _id: { $in: notificationIds } },
+            { $set: { read: true } }
+        );
+        res.status(200).send({ message: 'Notifications marked as read successfully' });
+    } catch (error) {
+        console.error('Error marking notifications as read:', error);
+        res.status(500).send({ error: 'Internal server error' });
+    }
+}
+
 module.exports = {
-    createNotification, // Export createNotification function
-    getNotificationsByUserId // Export getNotificationsByUserId function
+    createNotification,
+    getNotificationsByUserId,
+    markNotificationsAsRead
 };
