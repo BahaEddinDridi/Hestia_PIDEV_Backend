@@ -145,7 +145,7 @@ async function processCVAndUserData(cvText, UserInformation, userId) {
 
         // Parse the JSON output
         const parsedJsonOutput = JSON.parse(jsonOutput);
-
+        
         
         const mergedUserData = mergeUserData(await GetUserJSON(userId), parsedJsonOutput);
 
@@ -185,14 +185,7 @@ function updatePhoneNumber(existingUserData, additionalData) {
 }
 function mergeExperience(existingUserData, additionalData) {
     if (additionalData.experience && Array.isArray(additionalData.experience)) {
-        additionalData.experience.forEach(exp => {
-            const exists = existingUserData.experience.some(existingExp => {
-                return existingExp.title === exp.title && existingExp.company === exp.company;
-            });
-            if (!exists) {
-                existingUserData.experience.push(exp);
-            }
-        });
+        existingUserData.experience = existingUserData.experience.concat(additionalData.experience);
     }
 }
 function mergeSkills(existingUserData, additionalData) {
@@ -206,16 +199,10 @@ function mergeSkills(existingUserData, additionalData) {
 }
 function mergeProjects(existingUserData, additionalData) {
     if (additionalData.project && Array.isArray(additionalData.project)) {
-        additionalData.project.forEach(proj => {
-            const exists = existingUserData.project.some(existingProj => {
-                return existingProj.title === proj.title && existingProj.description === proj.description;
-            });
-            if (!exists) {
-                existingUserData.project.push(proj);
-            }
-        });
+        existingUserData.project = existingUserData.project.concat(additionalData.project);
     }
 }
+
 function mergeEducation(existingUserData, additionalData) {
     if (additionalData.education && Array.isArray(additionalData.education)) {
         additionalData.education.forEach(edu => {

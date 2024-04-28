@@ -594,6 +594,7 @@ const addRecoveryMail = async (req, res) => {
                 return res.json({ status: 'Success', message: 'Recovery email sent successfully' });
             }
         });
+        res.json({ status: 'Success', message: 'Recovery email added successfully' });
     } catch (error) {
         console.error('Error adding recovery email and sending email:', error);
         return res.status(500).json({ error: 'Internal Server Error' });
