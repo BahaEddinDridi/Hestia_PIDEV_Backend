@@ -1,5 +1,5 @@
 {
-    "frontend": [
+    "skills": [
         "HTML",
         "CSS",
         "JavaScript",
@@ -37,9 +37,7 @@
         "Wireframing",
         "Prototyping",
         "User Testing",
-        "Responsive Design Principles"
-    ],
-    "backend": [
+        "Responsive Design Principles",
         "Node.js",
         "Express.js",
         "Django",
@@ -68,9 +66,7 @@
         "Backend Scalability",
         "Concurrency",
         "Load Balancing",
-        "Caching Strategies"
-    ],
-    "cloud": [
+        "Caching Strategies",
         "AWS",
         "Amazon Web Services",
         "Azure",
@@ -98,9 +94,6 @@
         "Cloud Security Best Practices",
         "Cost Optimization",
         "Cloud Monitoring",
-        "Cloud Networking"
-    ],
-    "devOps": [
         "DevOps",
         "Continuous Integration (CI)",
         "Continuous Deployment (CD)",
@@ -130,9 +123,7 @@
         "Infrastructure as Code (IaC)",
         "Container Orchestration",
         "Microservices Architecture",
-        "Site Reliability Engineering (SRE)"
-    ],
-    "softwareEngineering": [
+        "Site Reliability Engineering (SRE)",
         "Software Development Life Cycle (SDLC)",
         "Agile Methodologies",
         "Scrum",
@@ -163,9 +154,7 @@
         "Software Performance Optimization",
         "Software Scalability",
         "Software Reliability",
-        "Software Security"
-    ],
-    "dataScience": [
+        "Software Security",
         "Data science",
         "Machine learning",
         "Deep learning",
@@ -192,9 +181,7 @@
         "Apache Spark",
         "Hadoop",
         "Apache Kafka",
-        "Stream Processing"
-    ],
-    "security": [
+        "Stream Processing",
         "Cybersecurity",
         "Information security",
         "Network security",
@@ -220,12 +207,11 @@
         "Encryption",
         "SSL/TLS",
         "OAuth",
+        "SAML",
         "OpenID Connect",
         "PKI (Public Key Infrastructure)",
         "Zero Trust Security",
-        "Web Application Firewall (WAF)"
-    ],
-    "mobile": [
+        "Web Application Firewall (WAF)",
         "Mobile development",
         "iOS development",
         "Android development",
@@ -249,9 +235,7 @@
         "Mobile app optimization",
         "Cross-platform development",
         "Native development",
-        "Hybrid development"
-    ],
-    "database": [
+        "Hybrid development", 
         "Database management",
         "SQL",
         "NoSQL",
@@ -310,9 +294,7 @@
         "CAP Theorem",
         "Sharding",
         "Replication",
-        "Federation"
-    ],
-    "testing": [
+        "Federation",
         "Testing",
         "Unit testing",
         "Integration testing",
@@ -357,9 +339,7 @@
         "Test report",
         "Test log",
         "Test result",
-        "Test summary"
-    ],
-    "BI": [
+        "Test summary",
         "Business Intelligence",
         "Data Warehousing",
         "Data Mining",
@@ -445,9 +425,7 @@
         "SAP Data Services",
         "SAP Predictive Analytics",
         "SAP Analytics Hub",
-        "SAP Business Planning and Consolidation"
-    ],
-    "iot": [
+        "SAP Business Planning and Consolidation",
         "Internet of Things (IoT)",
         "Embedded Systems",
         "Sensors",
@@ -487,6 +465,14 @@
         "IoT Device Management",
         "IoT Firmware Development",
         "IoT Application Development",
-        "IoT Connectivity Solutions"
+        "IoT Connectivity Solutions",
+        "IoT Gateway Development",
+        "IoT Testing",
+        "IoT Prototyping",
+        "IoT Deployment",
+        "IoT Monitoring",
+        "IoT Maintenance",
+        "IoT Troubleshooting",
+        "IoT Security"
     ]
 }

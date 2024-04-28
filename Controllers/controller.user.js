@@ -178,6 +178,30 @@ const getimagbyapp =async (req,res) =>{
         res.status(500).json({ message: 'Internal server error' });
     }
 }
+const getUserById = async (req, res) => {
+    const userId = req.query.userId;
+    const username = req.query.username;
+    try {
+        let user;
+        if (userId) {
+            user = await User.findById(userId);
+        } else if (username) {
+            user = await User.findOne({ username: username });
+        } else {
+            throw new Error('Neither userId nor username provided');
+        }
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        const { password, firstName, ...other } = user._doc;
+        res.status(200).json(other);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
 module.exports = {
     registerUser,
     updateprofile,
@@ -186,4 +210,5 @@ module.exports = {
     uploadcoverimage,
     deactivatedaccount,
     getimagbyapp,
+    getUserById,
 };
