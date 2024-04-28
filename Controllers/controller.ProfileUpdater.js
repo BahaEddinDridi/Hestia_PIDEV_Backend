@@ -1,25 +1,55 @@
 const user = require('../Models/user');
 const pdfparse = require("pdf-parse");
-const fs = require("fs").promises;
+const fs = require("fs");
 const path = require("path");
 const Groq = require("groq-sdk");
 const groq = new Groq();
 const multer = require('multer');
+const https = require('https');
 
 
-async function extractPDFText(pdfPath) {
+async function extractPDFText(pdfUrl) {
     try {
-        const filePath = path.resolve(__dirname, '..', 'Resumes', 'MOHSEN BERNAOU1 (ENG).pdf');
-        const data = await pdfparse(filePath);
-        
-        const combinedText = data.text; // Use data.text directly, as it's already the extracted text
+        const destination = path.resolve(__dirname, '..', 'Resumes', 'downloaded_file.pdf');
+        const file = fs.createWriteStream(destination);
+
+        await new Promise((resolve, reject) => {
+            https.get(pdfUrl, function (response) {
+                response.pipe(file);
+                file.on('finish', function () {
+                    file.close(resolve);
+                });
+            }).on('error', function (err) {
+                fs.unlink(destination, (err) => {
+                    if (err) {
+                        console.error('Error deleting file:', err);
+                    } else {
+                        console.log('File deleted successfully');
+                    }
+                });
+                reject(err);
+            });
+        });
+
+        const data = await pdfparse(destination);
+        const combinedText = data.text;
+
+        // Delete the downloaded file
+        fs.unlink(destination, (err) => {
+            if (err) {
+                console.error('Error deleting file:', err);
+            } else {
+                console.log('File deleted successfully');
+            }
+        });
+
+
         return combinedText;
     } catch (error) {
         console.error(error);
         throw new Error('Error extracting PDF text');
     }
 }
-
 async function GetUser(id) {
     try {
         const users = await user.findById(id);
@@ -54,40 +84,37 @@ async function GetUserJSON(id) {
             skills: users.skills,
             project: users.project,
         };
-       
+
         return UserData;
     } catch (error) {
         console.error(error);
         throw new Error('Error extracting user data');
     }
 }
-
-const CompareUserDataAndCV = async (req, res) => {
+async function CompareUserDataAndCV(req, res) {
     try {
         const { id } = req.params;
-        const cv= req.file;
-        const cvText = await extractPDFText(cv);
+        const { resume } = req.body;
         
+        // Upload user's resume URL
+        await uploadResume(id, resume);
         
-        
-        const UserInformation = await GetUser(id);
-        
-        // Call chatbot to compare user data and CV text
-        const updatedUserData = await processCVAndUserData(cvText,UserInformation, id);
-        
-        
+        // Extract text from the resume
+        const cvText = await extractPDFText(resume);
 
+        // Get user information from the database
+        const UserInformation = await GetUser(id);
+
+        // Process user information and resume text
+        const updatedUserData = await processCVAndUserData(cvText, UserInformation, id);
 
         res.status(200).json(updatedUserData);
-    }
-    catch (error) {
+    } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
-
-
-async function processCVAndUserData(cvText,UserInformation, userId) {
+async function processCVAndUserData(cvText, UserInformation, userId) {
     try {
         // Construct messages for chatbot interaction
         const messages = [
@@ -106,25 +133,25 @@ async function processCVAndUserData(cvText,UserInformation, userId) {
             stop: null,
             stream: false
         });
-        
+
         // Extract the response content
         const jsonResponse = completions.choices[0]?.message?.content || "";
-        
+
         const jsonStartIndex = jsonResponse.indexOf('{'); // Find the start index of the JSON n 
         if (jsonStartIndex === -1) {
             throw new Error('JSON data not found in the response');
         }
         const jsonOutput = jsonResponse.substring(jsonStartIndex); // Extract the JSON part
-        
+
         // Parse the JSON output
         const parsedJsonOutput = JSON.parse(jsonOutput);
-        
 
-        const mergedUserData = mergeUserDatas(await GetUserJSON(userId), parsedJsonOutput);
         
-         // Update user data in the database
+        const mergedUserData = mergeUserData(await GetUserJSON(userId), parsedJsonOutput);
+
+        // Update user data in the database
         await updateUserInDatabase(userId, mergedUserData);
-        
+
         // Return the merged user data
         return mergedUserData;
     } catch (error) {
@@ -132,37 +159,80 @@ async function processCVAndUserData(cvText,UserInformation, userId) {
         throw new Error('Error processing chatbot interaction');
     }
 }
+function mergeUserData(existingUserData, additionalData) {
+    updateEmail(existingUserData, additionalData);
+    updatePhoneNumber(existingUserData, additionalData);
+    mergeExperience(existingUserData, additionalData);
+    mergeSkills(existingUserData, additionalData);
+    mergeProjects(existingUserData, additionalData);
+    mergeEducation(existingUserData, additionalData);
 
-function mergeUserDatas(existingUserData, additionalData) {
+    return existingUserData;
+}
+function updateEmail(existingUserData, additionalData) {
     if (additionalData.email && typeof additionalData.email === 'string') {
-        existingUserData.email =  existingUserData.email;
+        if (existingUserData.email !== additionalData.email) {
+            existingUserData.email = additionalData.email;
+        }
     }
+}
+function updatePhoneNumber(existingUserData, additionalData) {
     if (additionalData.phoneNumber && typeof additionalData.phoneNumber === 'string') {
-        existingUserData.phoneNumber =  existingUserData.phoneNumber;
+        if (existingUserData.phoneNumber !== additionalData.phoneNumber) {
+            existingUserData.phoneNumber = additionalData.phoneNumber;
+        }
     }
+}
+function mergeExperience(existingUserData, additionalData) {
     if (additionalData.experience && Array.isArray(additionalData.experience)) {
-        // Concatenate the additional experience array with the existing one
-        existingUserData.experience = existingUserData.experience.concat(additionalData.experience);
-        // Handle "Present Day" for endDate
-        existingUserData.experience.forEach(exp => {
-            if (exp.endDate === "Present Day") {
-                exp.endDate = new Date(); // Assign current date
+        additionalData.experience.forEach(exp => {
+            const exists = existingUserData.experience.some(existingExp => {
+                return existingExp.title === exp.title && existingExp.company === exp.company;
+            });
+            if (!exists) {
+                existingUserData.experience.push(exp);
             }
         });
     }
-    if (additionalData.skills && Array.isArray(additionalData.skills)) {
-        existingUserData.skills = existingUserData.skills.concat(additionalData.skills);
-    }
-    return existingUserData;
 }
-
-
-
+function mergeSkills(existingUserData, additionalData) {
+    if (additionalData.skills && Array.isArray(additionalData.skills)) {
+        additionalData.skills.forEach(skill => {
+            if (!existingUserData.skills.includes(skill)) {
+                existingUserData.skills.push(skill);
+            }
+        });
+    }
+}
+function mergeProjects(existingUserData, additionalData) {
+    if (additionalData.project && Array.isArray(additionalData.project)) {
+        additionalData.project.forEach(proj => {
+            const exists = existingUserData.project.some(existingProj => {
+                return existingProj.title === proj.title && existingProj.description === proj.description;
+            });
+            if (!exists) {
+                existingUserData.project.push(proj);
+            }
+        });
+    }
+}
+function mergeEducation(existingUserData, additionalData) {
+    if (additionalData.education && Array.isArray(additionalData.education)) {
+        additionalData.education.forEach(edu => {
+            const exists = existingUserData.education.some(existingEdu => {
+                return existingEdu.degree === edu.degree && existingEdu.school === edu.school;
+            });
+            if (!exists) {
+                existingUserData.education.push(edu);
+            }
+        });
+    }
+}
 async function updateUserInDatabase(userId, userData) {
     try {
         // Find the user by ID
         const updatedUser = await user.findById(userId);
-        
+
         // Update user data
         updatedUser.email = userData.email;
         updatedUser.phoneNumber = userData.phoneNumber;
@@ -170,7 +240,7 @@ async function updateUserInDatabase(userId, userData) {
         updatedUser.education = userData.education;
         updatedUser.skills = userData.skills;
         updatedUser.project = userData.project;
-        
+
         // Save the updated user
         await updatedUser.save();
         console.log('User data updated successfully');
@@ -179,10 +249,18 @@ async function updateUserInDatabase(userId, userData) {
         throw new Error('Error updating user data in the database');
     }
 }
-
-
-  
+async function uploadResume(userId, resumeURL) {
+    try {
+        const userToUpdate = await user.findById(userId);
+        userToUpdate.resume = resumeURL;
+        await userToUpdate.save();
+       
+        return userToUpdate;
+    } catch (error) {
+        console.error(error);
+        throw new Error('Error updating user data in the database');
+    }
+}
 module.exports = {
-    
     CompareUserDataAndCV
 };
