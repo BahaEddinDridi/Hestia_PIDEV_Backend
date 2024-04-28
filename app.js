@@ -63,7 +63,7 @@ app.use('/message',Message);
 
 ////////////////// Socket IO //////////////////
 const httpServer = require("http").createServer(app); // Créez un serveur HTTP à partir de l'application Express
-
+const connectedAdmins = {};
 const io = require("socket.io")(httpServer, {
     cors: {
         origin: "http://localhost:5173", // Utilisez le port 5173 pour le front-end
@@ -84,6 +84,11 @@ const removeUser = (socketId)=> {
 const getUser = (userId)=>{
     return users.find(user=>user.userId === userId)
 }
+const sendNotificationToAdmin = (message) => {
+    Object.values(connectedAdmins).forEach((adminSocket) => {
+      adminSocket.emit('newNotification', message);
+    });
+};
 
 io.on("connection", (socket) => {
     //when connect
@@ -110,6 +115,20 @@ io.on("connection", (socket) => {
         removeUser(socket.id);
         io.emit("getUsers", users);
     });
+
+    // Vérifier si l'utilisateur est un administrateur
+  if (socket.user && socket.user.role === 'admin') {
+    // Stocker la socket du client admin dans la liste des administrateurs connectés
+    connectedAdmins[socket.id] = socket;
+  }
+
+  // Gérer la déconnexion du client
+  socket.on('disconnect', () => {
+    // Supprimer la socket du client admin de la liste des administrateurs connectés
+    if (connectedAdmins[socket.id]) {
+      delete connectedAdmins[socket.id];
+    }
+  });
 });
 
 
@@ -118,3 +137,5 @@ const PORT = process.env.PORT || 3001;
 httpServer.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+module.exports = { app,io,sendNotificationToAdmin };

@@ -7,7 +7,7 @@ const notificationSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['application', 'other'],
+        enum: ['application','New Compte', 'other'],
         required: true
     },
     message: {
