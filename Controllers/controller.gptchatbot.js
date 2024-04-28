@@ -9,8 +9,6 @@ const project = require('../Models/Project');
 let chatHistory = [];
 
 // Function to generate chatbot response
-// Function to generate chatbot response
-// Function to generate chatbot response
 const getGroqChatCompletion = async (userInput, userId) => {
     try {
         // Retrieve user information based on the user ID

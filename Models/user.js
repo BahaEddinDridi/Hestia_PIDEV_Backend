@@ -7,6 +7,7 @@ const Education = require('./Education');
 const Project = require('./Project');
 const bcrypt = require("bcrypt");
 const Application = require("./Application");
+const { resume } = require('pdfkit');
 
 const userSchema = new mongoose.Schema({
     firstName : {
@@ -129,6 +130,9 @@ const userSchema = new mongoose.Schema({
     deactivationEndTime: {
         type: Date,
         default: null,
+    },
+    resume: {
+        type: String,
     },
     applications: [Application.schema],
     experience:[Experience.schema],

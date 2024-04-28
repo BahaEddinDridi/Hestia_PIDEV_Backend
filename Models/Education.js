@@ -16,6 +16,9 @@ const educationSchema = new mongoose.Schema({
     endDate: {
         type: Date,
     },
+    description: {
+        type: String,
+    },
 });
 const Education = mongoose.model('Education', educationSchema);
 

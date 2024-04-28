@@ -28,7 +28,8 @@ const Message = require('./Routes/Message')
 const Ably = require('ably');
 const axios = require('axios');
 
-
+const ProfileUpdater = require('./Routes/ProfileUpdater');
+const recommendationRoute = require('./Routes/recommendation');
 const app = express();
 
 
@@ -143,6 +144,9 @@ io.on("connection", (socket) => {
         io.emit("getUsers", users);
     });
 });
+
+app.use('/ProfileUpdater', ProfileUpdater);
+app.use('/recommendation', recommendationRoute);
 
 
 
