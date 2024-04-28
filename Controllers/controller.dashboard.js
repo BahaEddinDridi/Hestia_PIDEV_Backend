@@ -6,7 +6,8 @@ const schedule = require('node-schedule');
 //exportation DATA
 const ExcelJS = require('exceljs');
 const PDFDocument = require('pdfkit');
-
+//API Calander
+const axios = require('axios');
 
 
 
@@ -341,6 +342,30 @@ const getUserByUsernameAdmin = async (req, res) => {
     }
   };
   
+////////Partie API 
+
+const CALENDARIFIC_API_KEY = 'yOmWJv9HZVrQP1BFnqMHLgTWNoVOjLwT';
+
+const fetchHolidaysAdmin = async (req, res) => {
+  const country = 'TN'; 
+  const year = new Date().getFullYear(); 
+
+  try {
+    const response = await axios.get('https://calendarific.com/api/v2/holidays', {
+      params: {
+        api_key: CALENDARIFIC_API_KEY,
+        country,
+        year
+      }
+    });
+
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching holidays:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 
 
   
@@ -359,6 +384,8 @@ module.exports ={
     getUserByUsernameAdmin,
     updateByusernameAdmin,
     desactiveProfilByIdAuto,
+    fetchHolidaysAdmin,
+    
 
     
 };

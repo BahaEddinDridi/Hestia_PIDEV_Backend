@@ -4,6 +4,9 @@ const passport = require('../Config/passport');
 const User = require('../Models/user');
 const asyncHandler = require('express-async-handler');
 const schedule = require('node-schedule');
+////////////////// Socket IO //////////////////
+const Notification=require("../Models/Notification");
+
 
 const registerUser = async (req, res) => {
     try {
@@ -36,6 +39,16 @@ const registerUser = async (req, res) => {
         });
 
         await newUser.save();
+        // Envoie une notification à l'administrateur
+        if (role !== 'admin') {
+            const notification = new Notification({
+                recipientId: '65e391bb8826b7b3a56df1d9', // Remplacez par l'ID de l'admin
+                type: 'New Compte',
+                message: `User ${newUser.firstName} ${newUser.lastName} has created an account`,
+            });
+            await notification.save();
+            console.log(notification);
+        }
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
         console.error(error);
