@@ -4,6 +4,9 @@ const passport = require('../Config/passport');
 const User = require('../Models/user');
 const asyncHandler = require('express-async-handler');
 const schedule = require('node-schedule');
+////////////////// Socket IO //////////////////
+const Notification=require("../Models/Notification");
+
 
 const registerUser = async (req, res) => {
     try {
@@ -36,6 +39,16 @@ const registerUser = async (req, res) => {
         });
 
         await newUser.save();
+        // Envoie une notification à l'administrateur
+        if (role !== 'admin') {
+            const notification = new Notification({
+                recipientId: '65e391bb8826b7b3a56df1d9', // Remplacez par l'ID de l'admin
+                type: 'New Compte',
+                message: `User ${newUser.firstName} ${newUser.lastName} has created an account`,
+            });
+            await notification.save();
+            console.log(notification);
+        }
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
         console.error(error);
@@ -49,7 +62,7 @@ const registerUser = async (req, res) => {
 const updateprofile = async(req,res) =>{
     try{
       
-        const{firstName,lastName,birthDate,username,email,location,phoneNumber,title,accountVisibility}=req.body;
+        const{firstName,lastName,birthDate,username,email,location,phoneNumber,title,accountVisibility,skills}=req.body;
         const userToUpdate = await User.findOne({ username: req.params.username });
         if (!userToUpdate) {
             return res.status(404).json({ error: 'User not found' });
@@ -63,6 +76,9 @@ const updateprofile = async(req,res) =>{
         userToUpdate.phoneNumber=phoneNumber;
         userToUpdate.accountVisibility=accountVisibility;
         userToUpdate.title=title;
+        if (skills) {
+            userToUpdate.skills = skills;
+          }
         await userToUpdate.save();
         res.json({message: 'Profile updated successfully',userToUpdate});
         
@@ -178,6 +194,58 @@ const getimagbyapp =async (req,res) =>{
         res.status(500).json({ message: 'Internal server error' });
     }
 }
+const getUserById = async (req, res) => {
+    const userId = req.query.userId;
+    const username = req.query.username;
+    try {
+        let user;
+        if (userId) {
+            user = await User.findById(userId);
+        } else if (username) {
+            user = await User.findOne({ username: username });
+        } else {
+            throw new Error('Neither userId nor username provided');
+        }
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        const { password, firstName, ...other } = user._doc;
+        res.status(200).json(other);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+const getUsersByUserId = async (req, res) => {
+    const userId = req.params.userId; // Récupérez l'ID de l'utilisateur depuis les paramètres de la requête
+    try {
+        // Recherchez tous les utilisateurs dont l'ID n'est pas égal à l'ID spécifié
+        const users = await User.find({ _id: { $ne: userId } });
+
+        // Vérifiez si des utilisateurs ont été trouvés
+        if (!users || users.length === 0) {
+            return res.status(404).json({ error: 'No users found' });
+        }
+
+        // Renvoyez les détails des utilisateurs trouvés
+        res.status(200).json(users);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+
+
+
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find(); 
+        res.json(users); 
+    } catch (err) {
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
 module.exports = {
     registerUser,
     updateprofile,
@@ -186,4 +254,7 @@ module.exports = {
     uploadcoverimage,
     deactivatedaccount,
     getimagbyapp,
+    getUserById,
+    getUsersByUserId,
+    getAllUsers
 };

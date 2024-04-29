@@ -8,7 +8,8 @@ const applicationSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
-        match: /^\S+@\S+\.\S+$/
+        match: /^\S+@\S+\.\S+$/,
+        unique: false
     },
     phoneNumber: {
         type: String,
@@ -46,7 +47,8 @@ const applicationSchema = new mongoose.Schema({
     },
     internshipId: {
         type: mongoose.Schema.Types.ObjectId,
-    }
+    },
+    interviewDate: { type: Date }
 });
 
 const Application = mongoose.model('Application', applicationSchema);

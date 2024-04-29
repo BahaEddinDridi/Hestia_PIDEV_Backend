@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Application = require("./Application");
-
-
+const skills = require("../skill/skills.json")
+const skillsList = skills.skills.map(skill => skill);
 
 const jobSchema = new mongoose.Schema({
     jobCompanyId: {
@@ -41,7 +41,8 @@ const jobSchema = new mongoose.Schema({
         type: Date,
     },
     jobRequiredSkills: {
-        type: String,
+        type: [String],
+        enum: skillsList, // Utilisation de la liste de compétences convertie
     },
     jobRequiredEducation: {
         type: String,

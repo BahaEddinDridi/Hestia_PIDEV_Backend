@@ -7,6 +7,7 @@ const Education = require('./Education');
 const Project = require('./Project');
 const bcrypt = require("bcrypt");
 const Application = require("./Application");
+const { resume } = require('pdfkit');
 
 const userSchema = new mongoose.Schema({
     firstName : {
@@ -130,12 +131,16 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: null,
     },
+    resume: {
+        type: String,
+    },
     applications: [Application.schema],
     experience:[Experience.schema],
     education:[Education.schema],
     project:[Project.schema],
     job:[Job.schema],
     intership:[Intership.schema],
+    skills: [String],
 });
 
 userSchema.methods.isValidPassword = async function (password) {
