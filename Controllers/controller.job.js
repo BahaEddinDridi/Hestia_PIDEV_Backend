@@ -1,6 +1,7 @@
 const Job = require('../Models/job');
 const User = require('../Models/user');
 const mongoose = require('mongoose');
+const Notification=require("../Models/Notification");
 
 const AddJob = async (req, res) => {
     try {
@@ -63,6 +64,21 @@ const AddJob = async (req, res) => {
             },
             { new: true }
         );
+         // Envoie une notification à l'administrateur
+        const adminUser = await User.findOne({ role: 'admin' });
+        if (adminUser) {
+            const adminId = adminUser._id; // Récupérer l'ID de l'administrateur
+
+            const notification = new Notification({
+                recipientId: adminId, // Remplacez par l'ID de l'admin
+                type: 'Job Opportunities',
+                message: `A new job ${newJob.jobTitle} has been added by ${newJob.jobCommpanyName}  `,
+            });
+
+            await notification.save();
+            console.log(notification);
+        }
+    
 
         res.json({ success: true, data: updatedUser });
     } catch (error) {
