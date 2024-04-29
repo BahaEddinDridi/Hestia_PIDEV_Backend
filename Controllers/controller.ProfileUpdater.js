@@ -120,7 +120,7 @@ async function processCVAndUserData(cvText, UserInformation, userId) {
         const messages = [
             { role: "user", content: cvText }, // CV text (as a string)
             { role: "user", content: UserInformation }, // User data (as a JSON string)
-            { role: "system", content: "Compare the resume and user data and return in the user data what is missing from the user resume  only in a json format and no confirmation message is needed only the json format is demanded,in a code format,not text at the end neather only json and only add the email ,phone number,expirience ,education,skill and project add them to the already given user data and do not write missingData just give it directly Combine the resume and user data, and return only the missing information from the resume in the user data. Return the result in JSON format without any confirmation message. Add the missing email, phone number, experience, education, skills, and project directly to the user data and only write the date in the jsonformat DATE YYYY-MM-DDTHH:mm:ss.sssZ and never write present always in this format DATE YYYY-MM-DDTHH:mm:ss.sssZ." } // System message
+            { role: "system", content: "Compare the resume and user data and return in the user data what is missing from the user resume  only in a json format and no confirmation message is needed only the json format is demanded,in a code format,not text at the end neather only json and only add the email ,phone number,expirience ,education,skill and project add them to the already given user data and do not write missingData just give it directly Combine the resume and user data, and return only the missing information from the resume in the user data. Return the result in JSON format without any confirmation message. Add the missing email, phone number, experience, education, skills, and project directly to the user data and only write the date in the jsonformat DATE YYYY-MM-DDTHH:mm:ss.sssZ and never write present always in this format DATE YYYY-MM-DDTHH:mm:ss.sssZ, add a title to the project and dont add email in skills and only add skills each one in a string alone no need to be specific if it's frontend or backend or devops." } // System message
         ];
 
         // Call the chatbot to get completions
@@ -199,7 +199,16 @@ function mergeSkills(existingUserData, additionalData) {
 }
 function mergeProjects(existingUserData, additionalData) {
     if (additionalData.project && Array.isArray(additionalData.project)) {
-        existingUserData.project = existingUserData.project.concat(additionalData.project);
+        additionalData.project.forEach(proj => {
+            // Check if the project already exists in the user data
+            const exists = existingUserData.project.some(existingProj => {
+                return existingProj.title === proj.title;
+            });
+            // If the project doesn't exist, add it to the user data
+            if (!exists) {
+                existingUserData.project.push(proj);
+            }
+        });
     }
 }
 
@@ -220,13 +229,38 @@ async function updateUserInDatabase(userId, userData) {
         // Find the user by ID
         const updatedUser = await user.findById(userId);
 
-        // Update user data
-        updatedUser.email = userData.email;
-        updatedUser.phoneNumber = userData.phoneNumber;
-        updatedUser.experience = userData.experience;
-        updatedUser.education = userData.education;
-        updatedUser.skills = userData.skills;
-        updatedUser.project = userData.project;
+        // Update user data fields
+        if (userData.email) {
+            updatedUser.email = userData.email;
+        }
+        if (userData.phoneNumber) {
+            updatedUser.phoneNumber = userData.phoneNumber;
+        }
+        if (userData.experience) {
+            // Handle "present" value for experience endDate
+            userData.experience.forEach(exp => {
+                if (exp.endDate === "present") {
+                    exp.endDate = new Date().toISOString(); // Set to current date and time
+                }
+            });
+            updatedUser.experience = userData.experience;
+        }
+        if (userData.education) {
+            updatedUser.education = userData.education;
+        }
+        if (userData.skills) {
+            updatedUser.skills = userData.skills;
+        }
+        if (userData.project) {
+            // Handle "present" value for project endDate
+            userData.project.forEach(proj => {
+                if (proj.endDate === "present") {
+                    proj.endDate = new Date().toISOString(); // Set to current date and time
+                }
+            });
+            updatedUser.project = userData.project;
+            console.log(updatedUser.project);
+        }
 
         // Save the updated user
         await updatedUser.save();
@@ -236,6 +270,7 @@ async function updateUserInDatabase(userId, userData) {
         throw new Error('Error updating user data in the database');
     }
 }
+
 async function uploadResume(userId, resumeURL) {
     try {
         const userToUpdate = await user.findById(userId);
