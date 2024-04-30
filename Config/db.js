@@ -5,8 +5,8 @@ const connectDB = async () => {
         const connectionString = 'mongodb+srv://bahaeddine170:MS6A1pGqyi4WBCRb@pidev.idvzrbf.mongodb.net/PIDEV';
 
         await mongoose.connect(connectionString, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
+            // useNewUrlParser: true,
+            // useUnifiedTopology: true,
         });
 
         console.log('Connected to the database');
