@@ -204,6 +204,8 @@ const getUserById = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 }
+
+
 const getUsersByUserId = async (req, res) => {
     const userId = req.params.userId; // Récupérez l'ID de l'utilisateur depuis les paramètres de la requête
     try {
@@ -234,6 +236,25 @@ const getAllUsers = async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 }
+const getOneUserById = async (req, res) => {
+    const userId = req.params.userId; // Récupérez l'ID de l'utilisateur depuis les paramètres de la requête
+    try {
+        // Recherchez l'utilisateur par son ID
+        const user = await User.findById(userId);
+
+        // Vérifiez si l'utilisateur a été trouvé
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Renvoyez les détails de l'utilisateur trouvé
+        res.status(200).json(user);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
 
 module.exports = {
     registerUser,
@@ -245,5 +266,6 @@ module.exports = {
     getimagbyapp,
     getUserById,
     getUsersByUserId,
-    getAllUsers
+    getAllUsers,
+    getOneUserById      
 };

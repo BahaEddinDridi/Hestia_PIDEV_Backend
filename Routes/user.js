@@ -45,6 +45,6 @@ router.put('/updateproject/:username/:projectId',projectcontroller.Updateproject
 
 router.get('/getUserById' ,userController.getUserById);
 router.get('/getUsersByUserId/:userId' ,userController.getUsersByUserId);
-
+router.get('/getOneUserById/:userId', userController.getOneUserById);
 router.get('/users',userController.getAllUsers);
 module.exports = router;
