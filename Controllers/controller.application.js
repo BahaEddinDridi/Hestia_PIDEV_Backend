@@ -5,6 +5,7 @@ const Job = require('../Models/job');
 const Intership = require('../Models/internship');
 const { createNotification } = require('./controller.notification');
 const axios = require('axios');
+const Notification=require("../Models/Notification");
 
 const notificationapi = require('notificationapi-node-server-sdk').default;
 
@@ -52,6 +53,20 @@ const saveApplication = async (req, res) => {
             job._id,
             user._id
         );
+         // Envoie une notification à l'administrateur
+         const adminUser = await User.findOne({ role: 'admin' });
+         if (adminUser) {
+             const adminId = adminUser._id; // Récupérer l'ID de l'administrateur
+ 
+             const notification = new Notification({
+                 recipientId: adminId, // Remplacez par l'ID de l'admin
+                 type: 'job_application',
+                 message: `${user.username} has applied for the ${job.jobTitle} job offer `,
+             });
+ 
+             await notification.save();
+             console.log(notification);
+         } 
         await notificationapi.send({
             notificationId: 'new_job_application',
             user: {
@@ -114,6 +129,20 @@ const saveInternshipApplication = async (req, res) => {
             internship._id,
             user._id
         );
+         // Envoie une notification à l'administrateur
+         const adminUser = await User.findOne({ role: 'admin' });
+         if (adminUser) {
+             const adminId = adminUser._id; // Récupérer l'ID de l'administrateur
+ 
+             const notification = new Notification({
+                 recipientId: adminId, // Remplacez par l'ID de l'admin
+                 type: 'internship_application',
+                 message: `${user.username} has applied for the ${internship.interTitle} intership offer `,
+             });
+ 
+             await notification.save();
+             console.log(notification);
+         } 
 
         res.status(201).json({ message: 'Application for internship saved successfully' });
     } catch (error) {

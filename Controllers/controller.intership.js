@@ -1,6 +1,7 @@
 const Intership = require('../Models/internship'); 
 const User = require('../Models/user');
 const job = require("../Models/job");
+const Notification=require("../Models/Notification");
 
 
 
@@ -63,6 +64,21 @@ const AddIntership = async (req, res) => {
             },
             { new: true }
         );
+         // Envoie une notification à l'administrateur
+         const adminUser = await User.findOne({ role: 'admin' });
+         if (adminUser) {
+             const adminId = adminUser._id; // Récupérer l'ID de l'administrateur
+ 
+             const notification = new Notification({
+                 recipientId: adminId, // Remplacez par l'ID de l'admin
+                 type: 'Intership Opportunities',
+                 message: `A new Intership ${newIntership.interTitle} has been added by ${newIntership.interCommpanyName}  `,
+             });
+ 
+             await notification.save();
+             console.log(notification);
+         }
+     
 
         res.json({ success: true, data: updatedUser });
     } catch (error) {
