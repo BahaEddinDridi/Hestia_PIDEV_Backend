@@ -34,6 +34,7 @@ const scrapLinkedin = async (req, res) => {
 
             await fs.writeFile(filePath, JSON.stringify(jobData, null, 2));
             res.send(`Scraping for ${keywords} in ${location} completed successfully. Job data saved to ${fileName}`);
+            
             return; // Exit the loop and function if scraping succeeds
         } catch (error) {
             if (error.name === 'TargetCloseError') {
@@ -348,15 +349,24 @@ const topSeniorityLevel = async (req, res) =>{
     const jobDescriptions = JSON.parse(await fs.readFile(path.join(__dirname, '../Data/job_descriptions.json')));
     const allSeniorityLevel = jobDescriptions.map(job => job.seniorityLevel);
     const seniorityLevelCounts = {};
+    
+    // Count seniority levels excluding empty string
     allSeniorityLevel.forEach(seniorityLevel => {
-        seniorityLevelCounts[seniorityLevel] = (seniorityLevelCounts[seniorityLevel] || 0) + 1;
+        if (seniorityLevel) {
+            seniorityLevelCounts[seniorityLevel] = (seniorityLevelCounts[seniorityLevel] || 0) + 1;
+        }
     });
 
-    const sortedSeniorityLevel = Object.entries(seniorityLevelCounts).sort((a, b) => b[1] - a[1]);
+    // Sort seniority levels by count
+    const sortedSeniorityLevel = Object.entries(seniorityLevelCounts)
+        .filter(([key, value]) => key !== '') // Exclude empty string
+        .sort((a, b) => b[1] - a[1]);
+
     console.log("Top seniority levels:", sortedSeniorityLevel.slice(0, 10));
     res.json(sortedSeniorityLevel.slice(0, 10));
     return sortedSeniorityLevel.slice(0, 10);
 }
+
 const topCompanies = async (req, res) =>{
     const jobDescriptions = JSON.parse(await fs.readFile(path.join(__dirname, '../Data/job_descriptions.json')));
     const allCompanies = jobDescriptions.map(job => job.company);
