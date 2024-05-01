@@ -60,7 +60,7 @@ app.use('/intership', intershipRoute);
 app.use('/application', applicationRoute);
 app.use('/notifications', notificationRoute);
 app.use('/application', applicationRoute);
-app.use('/notifications', notificationRoute);
+
 app.use('/conversation', Conversation);
 app.use('/message', Message);
 
@@ -89,48 +89,45 @@ app.get('/api/holidays', async (req, res) => {
 });
 
 ////////////////// Socket IO ////////////////////////
-const httpServer = require("http").createServer(app); // Créez un serveur HTTP à partir de l'application Express
-const connectedAdmins = {};
+const httpServer = require("http").createServer(app);
 const io = require("socket.io")(httpServer, {
     cors: {
-        origin: "http://localhost:5173", // Utilisez le port 5173 pour le front-end
-        methods: ["GET", "POST"],
+        origin: "http://localhost:5173",
+        methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true
     }
 });
 
 let users = [];
+
 const addUser = (userId, socketId) => {
-    !users.some(user => user.userId === userId) &&
-        users.push({ userId, socketId })
-}
+    if (!users.some(user => user.userId === userId)) {
+        users.push({ userId, socketId });
+    }
+    console.log('User added:', users);
+};
+
 const removeUser = (socketId) => {
-    users = users.filter(user => user.socketId !== socketId)
-}
+    users = users.filter(user => user.socketId !== socketId);
+    console.log('User removed:', users);
+};
 
 const getUser = (userId) => {
-    return users.find(user => user.userId === userId)
-}
-const sendNotificationToAdmin = (message) => {
-    Object.values(connectedAdmins).forEach((adminSocket) => {
-      adminSocket.emit('newNotification', message);
-    });
+    const idString = typeof userId === 'object' ? userId.toString() : userId;
+    return users.find(user => user.userId === idString);
 };
 
 io.on("connection", (socket) => {
-    //when connect
-    console.log("a user connected.")
-    //take userId and socketId from user
+    console.log("A user connected.");
+
     socket.on("addUser", userId => {
-        addUser(userId, socket.id)
+        addUser(userId, socket.id);
         io.emit("getUsers", users);
     });
 
-
-    //send and get message
     socket.on("sendMessage", ({ senderId, receiverId, text }) => {
         const user = getUser(receiverId);
-        if (user) { // Vérifiez si l'utilisateur est trouvé
+        if (user) {
             io.to(user.socketId).emit("getMessage", {
                 senderId,
                 text,
@@ -140,38 +137,22 @@ io.on("connection", (socket) => {
         }
     });
 
-    
-
-    //when diconnect
     socket.on("disconnect", () => {
-        console.log("a user disconnected")
+        console.log("A user disconnected");
         removeUser(socket.id);
         io.emit("getUsers", users);
     });
-
-    // Vérifier si l'utilisateur est un administrateur
-  if (socket.user && socket.user.role === 'admin') {
-    // Stocker la socket du client admin dans la liste des administrateurs connectés
-    connectedAdmins[socket.id] = socket;
-  }
-
-  // Gérer la déconnexion du client
-  socket.on('disconnect', () => {
-    // Supprimer la socket du client admin de la liste des administrateurs connectés
-    if (connectedAdmins[socket.id]) {
-      delete connectedAdmins[socket.id];
-    }
-  });
 });
+
 
 app.use('/ProfileUpdater', ProfileUpdater);
 app.use('/recommendation', recommendationRoute);
+app.use('/notifications', notificationRoute);
 
-
-
+console.log('connected users',users)
 const PORT = process.env.PORT || 3001;
 httpServer.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
 
-module.exports = { app,io,sendNotificationToAdmin };
+module.exports = { app,io,getUser  };

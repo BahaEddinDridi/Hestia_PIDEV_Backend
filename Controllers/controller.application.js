@@ -5,6 +5,7 @@ const Job = require('../Models/job');
 const Intership = require('../Models/internship');
 const { createNotification } = require('./controller.notification');
 const axios = require('axios');
+const {io} = require("../app");
 
 const notificationapi = require('notificationapi-node-server-sdk').default;
 
@@ -52,6 +53,7 @@ const saveApplication = async (req, res) => {
             job._id,
             user._id
         );
+
         await notificationapi.send({
             notificationId: 'new_job_application',
             user: {
@@ -318,6 +320,7 @@ const updateApplicationStatus = async (req, res) => {
             application.jobId,
             user._id
         );
+
         await notificationapi.send({
             notificationId: 'application_status_update',
             user: {
