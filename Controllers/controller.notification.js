@@ -3,6 +3,7 @@ const moment = require('moment');
 
 async function createNotification(recipientId, type, message, jobId, applicantId) {
     try {
+
         const notification = new Notification({
             recipientId,
             type,
@@ -11,7 +12,19 @@ async function createNotification(recipientId, type, message, jobId, applicantId
             applicantId
         });
         await notification.save();
-        console.log('Notification created successfully.');
+
+        const { io, getUser } = require('../app');
+        console.log('id', recipientId)
+        const recipientUser = getUser(recipientId);
+        console.log('Recipient user:', recipientUser);
+
+        if (recipientUser) {
+            console.log('Recipient is connected. Socket ID:', recipientUser.socketId);
+            io.to(recipientUser.socketId).emit('newNotification', { notification });
+            console.log('Notification created successfully and sent to recipient.');
+        } else {
+            console.log('Recipient is not connected. Notification not sent.');
+        }
     } catch (error) {
         console.error('Error creating notification:', error);
     }

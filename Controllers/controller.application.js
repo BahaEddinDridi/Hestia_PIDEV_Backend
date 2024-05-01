@@ -6,6 +6,7 @@ const Intership = require('../Models/internship');
 const { createNotification } = require('./controller.notification');
 const axios = require('axios');
 const Notification=require("../Models/Notification");
+const {io} = require("../app");
 
 const notificationapi = require('notificationapi-node-server-sdk').default;
 
@@ -57,16 +58,17 @@ const saveApplication = async (req, res) => {
          const adminUser = await User.findOne({ role: 'admin' });
          if (adminUser) {
              const adminId = adminUser._id; // Récupérer l'ID de l'administrateur
- 
+
              const notification = new Notification({
                  recipientId: adminId, // Remplacez par l'ID de l'admin
                  type: 'job_application',
                  message: `${user.username} has applied for the ${job.jobTitle} job offer `,
              });
- 
+
              await notification.save();
              console.log(notification);
-         } 
+         }
+
         await notificationapi.send({
             notificationId: 'new_job_application',
             user: {
@@ -133,16 +135,16 @@ const saveInternshipApplication = async (req, res) => {
          const adminUser = await User.findOne({ role: 'admin' });
          if (adminUser) {
              const adminId = adminUser._id; // Récupérer l'ID de l'administrateur
- 
+
              const notification = new Notification({
                  recipientId: adminId, // Remplacez par l'ID de l'admin
                  type: 'internship_application',
                  message: `${user.username} has applied for the ${internship.interTitle} intership offer `,
              });
- 
+
              await notification.save();
              console.log(notification);
-         } 
+         }
 
         res.status(201).json({ message: 'Application for internship saved successfully' });
     } catch (error) {
@@ -397,7 +399,7 @@ const updatestatuinter = async (req, res) => {
         }
         application.status = newStatus;
         await application.save();
-        
+
             
         const user = await User.findOne({ username: application.applicantUsername });
         await createNotification(
@@ -407,7 +409,7 @@ const updatestatuinter = async (req, res) => {
             application.jobId,
             user._id
         );
-       
+
         await User.updateOne(
             { username: application.applicantUsername, 'applications._id': application._id },
             { $set: { 'applications.$.status': newStatus  } }
@@ -557,7 +559,7 @@ const selectInterviewDate = async (req, res) => {
         await User.updateOne(
             { username: application.applicantUsername, 'applications._id': application._id },
             { $set: {  'applications.$.interviewDate':application.interviewDate } },
-            
+
         );
 
         res.status(200).json({ message: 'Interview date selected successfully', interviewDate: selectedDate });

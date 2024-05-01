@@ -201,7 +201,7 @@ const getAllInternships = async (req, res) => {
         if (req.query.field) {
             filters.interfield = req.query.field;
         }
-        const internships = await Intership.find(filters);
+        const internships = await Intership.find(filters).sort({interStartDate: -1});
         res.json(internships);
     } catch (error) {
         console.error('Error fetching internships:', error);
