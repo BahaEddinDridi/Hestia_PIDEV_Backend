@@ -140,8 +140,6 @@ io.on("connection", (socket) => {
         }
     });
 
-    
-
     //when diconnect
     socket.on("disconnect", () => {
         console.log("a user disconnected")
