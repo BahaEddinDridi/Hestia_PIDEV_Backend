@@ -20,4 +20,5 @@ router.delete('/deleteApplication/:applicationId', ApplicationController.deleteA
 router.put('/updatestatus', ApplicationController.updateApplicationStatus);
 router.put('/updatestatusinter', ApplicationController.updatestatuinter);
 router.get('/calendrie/event', ApplicationController.calendar);
+router.put('/selecteddate',ApplicationController.selectInterviewDate);
 module.exports = router;

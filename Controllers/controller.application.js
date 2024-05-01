@@ -334,15 +334,15 @@ const updateApplicationStatus = async (req, res) => {
         }) ;
          if (newStatus === 'Accepted') {
             
-            application.interviewDate = DateInterview;
+            application.interviewDates=DateInterview.map(date => new Date(date));
             await application.save();
           }else if (newStatus === 'Rejected') {
-            application.interviewDate = null;
+            application.interviewDates = null;
             await application.save();
         }
         await User.updateOne(
             { username: application.applicantUsername, 'applications._id': application._id },
-            { $set: { 'applications.$.status': newStatus , 'applications.$.interviewDate':application.interviewDate } },
+            { $set: { 'applications.$.status': newStatus , 'applications.$.interviewDates':application.interviewDates } },
             
         );
         await Job.updateOne(
@@ -358,7 +358,7 @@ const updateApplicationStatus = async (req, res) => {
 };
 const updatestatuinter = async (req, res) => {
     try {
-        const { applicationId, newStatus,DateInterview } = req.body;
+        const { applicationId, newStatus } = req.body;
         const application = await Application.findById(applicationId);
         if (!application) {
             return res.status(404).json({ error: 'Application not found' });
@@ -368,7 +368,7 @@ const updatestatuinter = async (req, res) => {
         }
         application.status = newStatus;
         await application.save();
-        if (newStatus === 'Accepted') {
+        
             
         const user = await User.findOne({ username: application.applicantUsername });
         await createNotification(
@@ -378,12 +378,10 @@ const updatestatuinter = async (req, res) => {
             application.jobId,
             user._id
         );
-            application.interviewDate = DateInterview;
-            await application.save();
-          }
+       
         await User.updateOne(
             { username: application.applicantUsername, 'applications._id': application._id },
-            { $set: { 'applications.$.status': newStatus } }
+            { $set: { 'applications.$.status': newStatus  } }
         );
 
         await Intership.updateOne(
@@ -464,7 +462,7 @@ const getUnavailableInternshipApplications = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
-const CALENDARIFIC_API_KEY = 'yOmWJv9HZVrQP1BFnqMHLgTWNoVOjLwT';
+const CALENDARIFIC_API_KEY = 'V5kdzfNbzIe5kvqhpOSw0PC227ipVtoO';
 const calendar = async (req, res) => {
     try {
        // const { username } = req.query; 
@@ -512,7 +510,33 @@ const calendar = async (req, res) => {
         res.status(500).json({ error: `Internal server error: ${error.message}` });
     }
 }
+const selectInterviewDate = async (req, res) => {
+    try {
+        const { applicantUsername, selectedDate } = req.body;
+        const application = await Application.findOne({ applicantUsername });
 
+        if (!application) {
+            return res.status(404).json({ error: 'Application not found' });
+        }
+        const selectedDateTime = new Date(selectedDate);
+        if (!application.interviewDates.some(date => date.getTime() === selectedDateTime.getTime())) {
+            return res.status(400).json({ error: 'Selected date is not available for interview' });
+        }
+        //const formattedSelectedDate = selectedDateTime.toISOString().slice(0, 19).replace('T', ' ');
+        application.interviewDate = selectedDateTime;
+        await application.save();
+        await User.updateOne(
+            { username: application.applicantUsername, 'applications._id': application._id },
+            { $set: {  'applications.$.interviewDate':application.interviewDate } },
+            
+        );
+
+        res.status(200).json({ message: 'Interview date selected successfully', interviewDate: selectedDate });
+    } catch (error) {
+        console.error('Error selecting interview date:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
 
 
 module.exports = {
@@ -528,5 +552,6 @@ module.exports = {
     getUnavailableJobsApplications,
     getAvailableInternshipApplications,
     getUnavailableInternshipApplications,
-    calendar
+    calendar,
+    selectInterviewDate
 };
