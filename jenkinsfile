@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         registryCredentials = "nexus"
-        registry = "192.168.1.197:8083"
+        registry = "192.168.100.206:8083"
     }
     
     stages {
@@ -52,7 +52,7 @@ pipeline {
             steps {  
                 script {
                     docker.withRegistry("http://${registry}", registryCredentials) {
-                        sh 'docker run -d -p 3000:3000 $registry/nodemongoapp:5.0'
+                        sh 'docker run -d -p 3001:3001 $registry/nodemongoapp:5.0'
                     }
                 }
             }
