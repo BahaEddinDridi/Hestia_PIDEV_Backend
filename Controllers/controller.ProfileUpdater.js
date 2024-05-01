@@ -6,20 +6,23 @@ const Groq = require("groq-sdk");
 const groq = new Groq();
 const multer = require('multer');
 const https = require('https');
-
+const { promisify } = require('util');
 
 async function extractPDFText(pdfUrl) {
     try {
         const destination = path.resolve(__dirname, '..', 'Resumes', 'downloaded_file.pdf');
         const file = fs.createWriteStream(destination);
 
-        await new Promise((resolve, reject) => {
-            https.get(pdfUrl, function (response) {
+        // Create a promise for the file download and write operation
+        const downloadPromise = new Promise((resolve, reject) => {
+            const request = https.get(pdfUrl, function (response) {
                 response.pipe(file);
                 file.on('finish', function () {
-                    file.close(resolve);
+                    file.close(resolve); // Resolve the promise when file writing is complete
                 });
-            }).on('error', function (err) {
+            });
+
+            request.on('error', function (err) {
                 fs.unlink(destination, (err) => {
                     if (err) {
                         console.error('Error deleting file:', err);
@@ -27,10 +30,14 @@ async function extractPDFText(pdfUrl) {
                         console.log('File deleted successfully');
                     }
                 });
-                reject(err);
+                reject(err); // Reject the promise if there's an error during download
             });
         });
 
+        // Wait for the file download and write operation to complete
+        await downloadPromise;
+
+        // Parse the downloaded PDF file
         const data = await pdfparse(destination);
         const combinedText = data.text;
 
@@ -42,7 +49,6 @@ async function extractPDFText(pdfUrl) {
                 console.log('File deleted successfully');
             }
         });
-
 
         return combinedText;
     } catch (error) {
