@@ -7,12 +7,7 @@ services:
     container_name: back
     ports:
       - "3001:3001"
-    depends_on:
-      - mongodb
-  mongodb:
-    image: mongo
-    restart: always
-    volumes:
-      - mongo-data:/data/db
-volumes:
-  mongo-data:
+    env_file:
+      - .env  
+
+
