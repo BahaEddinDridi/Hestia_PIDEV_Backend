@@ -48,7 +48,9 @@ const applicationSchema = new mongoose.Schema({
     internshipId: {
         type: mongoose.Schema.Types.ObjectId,
     },
-    interviewDate: { type: Date }
+    interviewDate: { type: Date },
+    interviewDates:[Date],
+    
 });
 
 const Application = mongoose.model('Application', applicationSchema);
