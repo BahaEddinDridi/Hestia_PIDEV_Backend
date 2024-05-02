@@ -39,9 +39,12 @@ app.use(logger);
 connectDB();
 
 app.use(cors({
-    origin: 'http://localhost:5173',
-    credentials: true,
+  origin: 'http://192.168.33.10:5173', // Allow requests from backend server
+  credentials: true, // Allow credentials (cookies, authorization headers)
 }));
+
+// Serve static files (built frontend) using http-server
+app.use(express.static('dist'));
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
