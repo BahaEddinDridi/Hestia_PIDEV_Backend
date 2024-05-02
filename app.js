@@ -109,7 +109,8 @@ const removeUser = (socketId) => {
 }
 
 const getUser = (userId) => {
-    return users.find(user => user.userId === userId)
+    const idString = typeof userId === 'object' ? userId.toString() : userId;
+    return users.find(user => user.userId === idString)
 }
 const sendNotificationToAdmin = (message) => {
     Object.values(connectedAdmins).forEach((adminSocket) => {
@@ -172,4 +173,4 @@ httpServer.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
 
-module.exports = { app,io,sendNotificationToAdmin };
+module.exports = { app,io,sendNotificationToAdmin, getUser };
