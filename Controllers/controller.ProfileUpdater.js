@@ -8,6 +8,42 @@ const multer = require('multer');
 const https = require('https');
 const { promisify } = require('util');
 
+async function CompareUserDataAndCV(req, res) {
+    try {
+        const { id } = req.params;
+        const { resume } = req.body;
+        
+        // Upload user's resume URL
+        await uploadResume(id, resume);
+        
+        // Extract text from the resume
+        const cvText = await extractPDFText(resume);
+
+        // Get user information from the database
+        const UserInformation = await GetUser(id);
+
+        // Process user information and resume text
+        const updatedUserData = await processCVAndUserData(cvText, UserInformation, id);
+
+        res.status(200).json(updatedUserData);
+        console.log('User data updated successfully');
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+async function uploadResume(userId, resumeURL) {
+    try {
+        const userToUpdate = await user.findById(userId);
+        userToUpdate.resume = resumeURL;
+        await userToUpdate.save();
+       console.log('Resume URL updated successfully');
+        return userToUpdate;
+    } catch (error) {
+        console.error(error);
+        throw new Error('Error updating user data in the database');
+    }
+}
 async function extractPDFText(pdfUrl) {
     try {
         const destination = path.resolve(__dirname, '..', 'Resumes', 'downloaded_file.pdf');
@@ -49,7 +85,7 @@ async function extractPDFText(pdfUrl) {
                 console.log('File deleted successfully');
             }
         });
-
+        console.log('PDF text extracted successfully');
         return combinedText;
     } catch (error) {
         console.error(error);
@@ -71,6 +107,7 @@ async function GetUser(id) {
         };
         // Convert UserData JSON to a string
         const userDataString = JSON.stringify(UserData);
+        console.log('User data extracted successfully in text format');
         return userDataString;
     } catch (error) {
         console.error(error);
@@ -90,43 +127,21 @@ async function GetUserJSON(id) {
             skills: users.skills,
             project: users.project,
         };
-
+        console.log('User data extracted successfully in JSON format');
         return UserData;
     } catch (error) {
         console.error(error);
         throw new Error('Error extracting user data');
     }
 }
-async function CompareUserDataAndCV(req, res) {
-    try {
-        const { id } = req.params;
-        const { resume } = req.body;
-        
-        // Upload user's resume URL
-        await uploadResume(id, resume);
-        
-        // Extract text from the resume
-        const cvText = await extractPDFText(resume);
 
-        // Get user information from the database
-        const UserInformation = await GetUser(id);
-
-        // Process user information and resume text
-        const updatedUserData = await processCVAndUserData(cvText, UserInformation, id);
-
-        res.status(200).json(updatedUserData);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-}
 async function processCVAndUserData(cvText, UserInformation, userId) {
     try {
         // Construct messages for chatbot interaction
         const messages = [
             { role: "user", content: cvText }, // CV text (as a string)
             { role: "user", content: UserInformation }, // User data (as a JSON string)
-            { role: "system", content: "Compare the resume and user data and return in the user data what is missing from the user resume  only in a json format and no confirmation message is needed only the json format is demanded,in a code format,not text at the end neather only json and only add the email ,phone number,expirience ,education,skill and project add them to the already given user data and do not write missingData just give it directly Combine the resume and user data, and return only the missing information from the resume in the user data. Return the result in JSON format without any confirmation message. Add the missing email, phone number, experience, education, skills, and project directly to the user data and only write the date in the jsonformat DATE YYYY-MM-DDTHH:mm:ss.sssZ and never write present always in this format DATE YYYY-MM-DDTHH:mm:ss.sssZ, add a title to the project and dont add email in skills and only add skills each one in a string alone no need to be specific if it's frontend or backend or devops." } // System message
+            { role: "system", content: "Compare the resume and user data and return in the user data what is missing from the user resume  only in a json format and no confirmation message is needed only the json format is demanded,in a code format,not text at the end neather only json and only add the email ,phone number,expirience ,education,skill and project add them to the already given user data and do not write missingData just give it directly Combine the resume and user data, and return only the missing information from the resume in the user data. Return the result in JSON format without any confirmation message. Add the missing email, phone number, experience, education, skills, and project directly to the user data and only write the date in the jsonformat DATE YYYY-MM-DDTHH:mm:ss.sssZ and never write present always in this format DATE YYYY-MM-DDTHH:mm:ss.sssZ, add a title to the project and dont add email in skills and only add skills each one in a string alone no need to be specific if it's frontend or backend or devops. only write code format and dont give any comments  add title to the projects and in the education write the school and never write present always write the format data that i gave to you and add the description to the experience and the projects and always return the json code output the education have{school,degree,startDate,endDate,description}date format is Date with jsonformat DATE YYYY-MM-DDTHH:mm:ss.sssZ the experience have {title,company,startDate,endDate,description} date format is Date with jsonformat DATE YYYY-MM-DDTHH:mm:ss.sssZ the project have {title,description,startDate,endDate } date format is Date with jsonformat DATE YYYY-MM-DDTHH:mm:ss.sssZ" } // System message
         ];
 
         // Call the chatbot to get completions
@@ -148,16 +163,17 @@ async function processCVAndUserData(cvText, UserInformation, userId) {
             throw new Error('JSON data not found in the response');
         }
         const jsonOutput = jsonResponse.substring(jsonStartIndex); // Extract the JSON part
-
+        
         // Parse the JSON output
         const parsedJsonOutput = JSON.parse(jsonOutput);
+        
         
         
         const mergedUserData = mergeUserData(await GetUserJSON(userId), parsedJsonOutput);
 
         // Update user data in the database
         await updateUserInDatabase(userId, mergedUserData);
-
+        console.log('User data updated successfully in the database FINAL');
         // Return the merged user data
         return mergedUserData;
     } catch (error) {
@@ -167,12 +183,19 @@ async function processCVAndUserData(cvText, UserInformation, userId) {
 }
 function mergeUserData(existingUserData, additionalData) {
     updateEmail(existingUserData, additionalData);
+    console.log('Email updated successfully');
     updatePhoneNumber(existingUserData, additionalData);
+    console.log('Phone number updated successfully');
     mergeExperience(existingUserData, additionalData);
+    console.log('Experience merged successfully');
     mergeSkills(existingUserData, additionalData);
+    console.log('Skills merged successfully');
     mergeProjects(existingUserData, additionalData);
+    console.log('Projects merged successfully');
     mergeEducation(existingUserData, additionalData);
-
+    console.log('Education merged successfully');
+    console.log('-------------------------------');
+    console.log('User data merged successfully');
     return existingUserData;
 }
 function updateEmail(existingUserData, additionalData) {
@@ -217,7 +240,6 @@ function mergeProjects(existingUserData, additionalData) {
         });
     }
 }
-
 function mergeEducation(existingUserData, additionalData) {
     if (additionalData.education && Array.isArray(additionalData.education)) {
         additionalData.education.forEach(edu => {
@@ -265,7 +287,7 @@ async function updateUserInDatabase(userId, userData) {
                 }
             });
             updatedUser.project = userData.project;
-            console.log(updatedUser.project);
+            
         }
 
         // Save the updated user
@@ -277,18 +299,7 @@ async function updateUserInDatabase(userId, userData) {
     }
 }
 
-async function uploadResume(userId, resumeURL) {
-    try {
-        const userToUpdate = await user.findById(userId);
-        userToUpdate.resume = resumeURL;
-        await userToUpdate.save();
-       
-        return userToUpdate;
-    } catch (error) {
-        console.error(error);
-        throw new Error('Error updating user data in the database');
-    }
-}
+
 module.exports = {
     CompareUserDataAndCV
 };
