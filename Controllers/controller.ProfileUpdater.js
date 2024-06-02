@@ -97,7 +97,7 @@ async function GetUser(id) {
         const users = await user.findById(id);
         const UserData = {
             name: users.firstName + ' ' + users.lastName,
-            email: users.email,
+            
             location: users.location,
             
             experience: users.experience,
@@ -119,7 +119,7 @@ async function GetUserJSON(id) {
         const users = await user.findById(id);
         const UserData = {
             firstName: users.firstName,
-            email: users.email,
+            
             location: users.location,
             
             experience: users.experience,
@@ -141,7 +141,7 @@ async function processCVAndUserData(cvText, UserInformation, userId) {
         const messages = [
             { role: "user", content: cvText }, // CV text (as a string)
             { role: "user", content: UserInformation }, // User data (as a JSON string)
-            { role: "system", content: "Compare the resume and user data and return in the user data what is missing from the user resume  only in a json format and no confirmation message is needed only the json format is demanded,in a code format,not text at the end neather only json and only add the email ,expirience ,education,skill and project add them to the already given user data and do not write missingData just give it directly Combine the resume and user data, and return only the missing information from the resume in the user data. Return the result in JSON format without any confirmation message. Add the missing email, experience, education, skills, and project directly to the user data and only write the date in the jsonformat DATE YYYY-MM-DDTHH:mm:ss.sssZ and never write present always in this format DATE YYYY-MM-DDTHH:mm:ss.sssZ, add a title to the project and dont add email in skills and only add skills each one in a string alone no need to be specific if it's frontend or backend or devops. only write code format and dont give any comments  add title to the projects and in the education write the school and never write present always write the format data that i gave to you and add the description to the experience and the projects and always return the json code output the education have{school,degree,startDate,endDate,description}date format is Date with jsonformat DATE YYYY-MM-DDTHH:mm:ss.sssZ the experience have {title,company,startDate,endDate,description} date format is Date with jsonformat DATE YYYY-MM-DDTHH:mm:ss.sssZ the project have {title,description,startDate,endDate } date format is Date with jsonformat DATE YYYY-MM-DDTHH:mm:ss.sssZ and dont add technologies in the projects and only write json do not write anything else then the json i want" } // System message
+            { role: "system", content: "Compare the resume and user data and return in the user data what is missing from the user resume  only in a json format and no confirmation message is needed only the json format is demanded,in a code format,not text at the end neather only json and only add the expirience ,education,skill and project add them to the already given user data and do not write missingData just give it directly Combine the resume and user data, and return only the missing information from the resume in the user data. Return the result in JSON format without any confirmation message. Add the missing experience, education, skills, and project directly to the user data and only write the date in the jsonformat DATE YYYY-MM-DDTHH:mm:ss.sssZ and never write present always in this format DATE YYYY-MM-DDTHH:mm:ss.sssZ, add a title to the project and dont add email in skills and only add skills each one in a string alone no need to be specific if it's frontend or backend or devops. only write code format and dont give any comments  add title to the projects and in the education write the school and never write present always write the format data that i gave to you and add the description to the experience and the projects and always return the json code output the education have{school,degree,startDate,endDate,description}date format is Date with jsonformat DATE YYYY-MM-DDTHH:mm:ss.sssZ the experience have {title,company,startDate,endDate,description} date format is Date with jsonformat DATE YYYY-MM-DDTHH:mm:ss.sssZ the project have {title,description,startDate,endDate } date format is Date with jsonformat DATE YYYY-MM-DDTHH:mm:ss.sssZ and dont add technologies in the projects and only write json do not write anything else then the json i want" } // System message
         ];
 
         // Call the chatbot to get completions
@@ -182,8 +182,7 @@ async function processCVAndUserData(cvText, UserInformation, userId) {
     }
 }
 function mergeUserData(existingUserData, additionalData) {
-    updateEmail(existingUserData, additionalData);
-    console.log('Email updated successfully');
+    
     
     mergeExperience(existingUserData, additionalData);
     console.log('Experience merged successfully');
@@ -197,13 +196,7 @@ function mergeUserData(existingUserData, additionalData) {
     console.log('User data merged successfully');
     return existingUserData;
 }
-function updateEmail(existingUserData, additionalData) {
-    if (additionalData.email && typeof additionalData.email === 'string') {
-        if (existingUserData.email !== additionalData.email) {
-            existingUserData.email = additionalData.email;
-        }
-    }
-}
+
 function mergeExperience(existingUserData, additionalData) {
     if (additionalData.experience && Array.isArray(additionalData.experience)) {
         existingUserData.experience = existingUserData.experience.concat(additionalData.experience);
@@ -250,9 +243,7 @@ async function updateUserInDatabase(userId, userData) {
         const updatedUser = await user.findById(userId);
 
         // Update user data fields
-        if (userData.email) {
-            updatedUser.email = userData.email;
-        }
+        
         
         if (userData.experience) {
             // Handle "present" value for experience endDate
