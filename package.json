@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "mocha tests --exit",
+    "test": "jest --coverage",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
@@ -58,5 +58,9 @@
     "uuid": "^9.0.1",
     "validator": "^13.11.0",
     "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "sonar-scanner": "^3.1.0"
   }
 }
