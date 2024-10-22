@@ -59,14 +59,22 @@
     "validator": "^13.11.0",
     "ws": "^8.16.0"
   },
-  "jest": {
-    "collectCoverage": true,
-    "coverageDirectory": "coverage",
-    "coverageReporters": [
-      "lcov",
-      "text"
-    ]
-  },
+  
+    "jest": {
+      "collectCoverage": true,
+      "collectCoverageFrom": [
+        "Controllers/**/*.js",
+        "Models/**/*.js",
+        "!**/node_modules/**"
+      ],
+      "coverageDirectory": "coverage",
+      "coverageReporters": [
+        "lcov",
+        "text",
+        "html"
+      ]
+    }
+  ,
   "devDependencies": {
     "jest": "^29.7.0",
     "sonar-scanner": "^3.1.0",
