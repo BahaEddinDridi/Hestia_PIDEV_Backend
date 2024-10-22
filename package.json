@@ -59,24 +59,23 @@
     "validator": "^13.11.0",
     "ws": "^8.16.0"
   },
-  
-    "jest": {
-      "collectCoverage": true,
-      "collectCoverageFrom": [
-        "Controllers/**/*.js",
-        "Models/**/*.js",
-        "!**/node_modules/**"
-      ],
-      "coverageDirectory": "coverage",
-      "coverageReporters": [
-        "lcov",
-        "text",
-        "html"
-      ]
-    }
-  ,
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "Controllers/**/*.js",
+      "Models/**/*.js",
+      "!**/node_modules/**"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "lcov",
+      "text",
+      "html"
+    ]
+  },
   "devDependencies": {
     "jest": "^29.7.0",
+    "mocha": "^10.7.3",
     "sonar-scanner": "^3.1.0",
     "supertest": "^7.0.0"
   }
