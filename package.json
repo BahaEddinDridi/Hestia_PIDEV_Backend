@@ -64,13 +64,12 @@
     "collectCoverageFrom": [
       "Controllers/**/*.js",
       "Models/**/*.js",
+      "Routes/**/*.js",
       "!**/node_modules/**"
     ],
     "coverageDirectory": "coverage",
     "coverageReporters": [
-      "lcov",
-      "text",
-      "html"
+      "lcov"
     ]
   },
   "devDependencies": {
