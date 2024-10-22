@@ -21,7 +21,13 @@ pipeline {
                 }
             }
         }
-
+        stage('Run Tests and Generate Coverage') {
+            steps {
+                script {
+                    sh 'npm run test -- --coverage'
+                }
+            }
+        }
         stage('SonarQube Analysis') {
             steps {
                 script {
