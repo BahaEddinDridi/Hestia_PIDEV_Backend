@@ -14129,3 +14129,8 @@
 20240502	21:29:12	a6395b9e-0c9f-4960-a5d0-ee7f2c019804	GET	/CRM/getCRM	http://localhost:5173
 20240502	21:29:12	1ee83636-c9fc-4557-935b-55186d36698a	GET	/recommendation/recommendUser/660f5f47ddd5f796a6ef72c5	http://localhost:5173
 20240502	21:29:12	105be841-fb73-4067-953f-9509ca6f9047	GET	/dashboard/users	http://localhost:5173
+20241022	17:21:19	ecf798f4-1ad8-44ad-a900-a37ec332a73d	GET	/auth	undefined
+20241022	17:21:20	e7144b6b-c4a3-44ec-a4e4-727e4fad28f3	GET	/auth	undefined
+20241022	17:23:28	c1d017ee-b1a5-44aa-8b32-eee5b7e4def0	GET	/auth	undefined
+20241022	17:23:56	241c3c2c-9f6f-4f69-85cd-746d90736f54	GET	/auth	undefined
+20241022	17:24:06	4c2df2ff-4523-4f8f-84ba-606b37d35535	GET	/auth	undefined
